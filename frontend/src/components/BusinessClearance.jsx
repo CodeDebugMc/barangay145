@@ -32,10 +32,11 @@ import {
   Visibility as EyeIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Description as FileTextIcon
+  Description as FileTextIcon,
+  CalendarToday as CalendarTodayIcon
 } from '@mui/icons-material';
 
-export default function BarangayClearance() {
+export default function BusinessClearance() {
   const apiBase = "http://localhost:5000";
 
   const [records, setRecords] = useState([]);
@@ -45,19 +46,35 @@ export default function BarangayClearance() {
   const [activeTab, setActiveTab] = useState("form");
   const [searchTerm, setSearchTerm] = useState("");
 
+  // Calculate initial expiry date (1 year from today)
+  const getInitialDates = () => {
+    const today = new Date();
+    const oneYearLater = new Date(today);
+    oneYearLater.setFullYear(oneYearLater.getFullYear() + 1);
+    
+    return {
+      dateIssued: today.toISOString().split("T")[0],
+      dateExpired: oneYearLater.toISOString().split("T")[0]
+    };
+  };
+
   const [formData, setFormData] = useState({
-    name: "",
+    ownerName: "",
+    businessName: "",
+    natureOfBusiness: "",
     address: "",
-    birthday: "",
-    age: "",
-    provincialAddress: "",
-    contactNo: "",
-    civilStatus: "Single",
-    requestReason: "",
-    dateIssued: new Date().toISOString().split("T")[0],
+    ...getInitialDates(),
+    purpose: "Barangay Permit"
   });
 
-  const civilStatusOptions = ["Single", "Married", "Widowed", "Divorced", "Separated"];
+  const purposeOptions = [
+    "Barangay Permit", 
+    "Business Registration", 
+    "License Renewal", 
+    "Tax Clearance", 
+    "Bank Requirements", 
+    "Government Requirements"
+  ];
 
   useEffect(() => {
     loadRecords();
@@ -65,21 +82,19 @@ export default function BarangayClearance() {
 
   async function loadRecords() {
     try {
-      const res = await fetch(`${apiBase}/request-records`);
+      const res = await fetch(`${apiBase}/business-records`);
       const data = await res.json();
       setRecords(
         Array.isArray(data)
           ? data.map((r) => ({
               id: r.id,
-              name: r.name,
+              ownerName: r.owner_name,
+              businessName: r.business_name,
+              natureOfBusiness: r.nature_of_business,
               address: r.address,
-              birthday: r.birthday?.slice(0, 10) || "",
-              age: String(r.age ?? ""),
-              provincialAddress: r.provincial_address || "",
-              contactNo: r.contact_no || "",
-              civilStatus: r.civil_status,
-              requestReason: r.request_reason,
               dateIssued: r.date_issued?.slice(0, 10) || "",
+              dateExpired: r.date_expired?.slice(0, 10) || "",
+              purpose: r.purpose,
               dateCreated: r.date_created,
             }))
           : []
@@ -89,14 +104,18 @@ export default function BarangayClearance() {
     }
   }
 
-  function handleBirthdayChange(birthday) {
-    if (birthday) {
-      const birthDate = new Date(birthday);
-      const today = new Date();
-      const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
-      setFormData({ ...formData, birthday, age: String(age) });
+  function handleDateIssuedChange(dateIssued) {
+    if (dateIssued) {
+      const issueDate = new Date(dateIssued);
+      const expiredDate = new Date(issueDate);
+      expiredDate.setFullYear(expiredDate.getFullYear() + 1);
+      setFormData({ 
+        ...formData, 
+        dateIssued, 
+        dateExpired: expiredDate.toISOString().split("T")[0] 
+      });
     } else {
-      setFormData({ ...formData, birthday: "", age: "" });
+      setFormData({ ...formData, dateIssued: "", dateExpired: "" });
     }
   }
 
@@ -108,21 +127,19 @@ export default function BarangayClearance() {
 
   function toServerPayload(data) {
     return {
-      name: data.name,
+      owner_name: data.ownerName,
+      business_name: data.businessName,
+      nature_of_business: data.natureOfBusiness,
       address: data.address,
-      birthday: data.birthday || null,
-      age: data.age ? Number(data.age) : null,
-      provincial_address: data.provincialAddress || null,
-      contact_no: data.contactNo || null,
-      civil_status: data.civilStatus,
-      request_reason: data.requestReason,
       date_issued: data.dateIssued,
+      date_expired: data.dateExpired,
+      purpose: data.purpose,
     };
   }
 
   async function handleCreate() {
     try {
-      const res = await fetch(`${apiBase}/request-records`, {
+      const res = await fetch(`${apiBase}/business-records`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toServerPayload(formData)),
@@ -142,7 +159,7 @@ export default function BarangayClearance() {
 
   async function handleUpdate() {
     try {
-      const res = await fetch(`${apiBase}/request-records/${editingId}`, {
+      const res = await fetch(`${apiBase}/business-records/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toServerPayload(formData)),
@@ -169,7 +186,7 @@ export default function BarangayClearance() {
   async function handleDelete(id) {
     if (!window.confirm("Delete this record?")) return;
     try {
-      const res = await fetch(`${apiBase}/request-records/${id}`, { method: "DELETE" });
+      const res = await fetch(`${apiBase}/business-records/${id}`, { method: "DELETE" });
       if (!res.ok) throw new Error("Delete failed");
       setRecords(records.filter((r) => r.id !== id));
       if (selectedRecord?.id === id) setSelectedRecord(null);
@@ -186,15 +203,12 @@ export default function BarangayClearance() {
 
   function resetForm() {
     setFormData({
-      name: "",
+      ownerName: "",
+      businessName: "",
+      natureOfBusiness: "",
       address: "",
-      birthday: "",
-      age: "",
-      provincialAddress: "",
-      contactNo: "",
-      civilStatus: "Single",
-      requestReason: "",
-      dateIssued: new Date().toISOString().split("T")[0],
+      ...getInitialDates(),
+      purpose: "Barangay Permit"
     });
     setEditingId(null);
     setIsFormOpen(false);
@@ -209,9 +223,9 @@ export default function BarangayClearance() {
     () =>
       records.filter(
         (r) =>
-          r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          r.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (r.contactNo || "").includes(searchTerm)
+          r.ownerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          r.businessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          r.address.toLowerCase().includes(searchTerm.toLowerCase())
       ),
     [records, searchTerm]
   );
@@ -292,64 +306,66 @@ export default function BarangayClearance() {
             <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "12pt", fontWeight: "bold", fontFamily: '"Arial Black", sans-serif', top: "166px" }}>
               OFFICE OF THE BARANGAY CHAIRMAN
             </div>
+
+            {/* Business Clearance Title */}
             <div style={{ position: "absolute", top: "196px", width: "100%", textAlign: "center" }}>
               <span style={{ fontFamily: '"Brush Script MT", cursive', fontSize: "28pt", fontWeight: "normal", display: "inline-block", background: "#0b7030", color: "#fff", padding: "4px 70px", borderRadius: "8px" }}>
-                Barangay Clearance
+                Business Clearance
               </span>
             </div>
-
-            {/* Date */}
-            <div style={{ position: "absolute", whiteSpace: "pre", top: "270px", right: "200px", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold", color: "red" }}>
-              Date: {display.dateIssued ? formatDate(display.dateIssued) : ""}
+            {/* Certificate Text */}
+            <div style={{ position: "absolute", whiteSpace: "pre", top: "260px", left: "80px", width: "640px", textAlign: "justify", fontFamily: '"Times New Roman", serif', fontSize: "11pt", fontWeight: "bold", color: "black" }}>
+              This is to certify that this Business Clearance for <span style={{ color: "red" }}>Business Permit</span> is<br />issued to:.
             </div>
 
-            {/* Body */}
-            <div style={{ position: "absolute", whiteSpace: "pre", top: "330px", left: "80px", width: "640px", textAlign: "justify", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold", color: "black" }}>
-              To whom it may concern:<br />
-              <span style={{ marginLeft: "50px" }}></span>This is to certify that the person whose name and thumb print
-              appear<br /> hereon has requested a Barangay Clearance from this office
-              and the result/s<br />  is/arelisted below and valid for six (6) months only.
-            </div>
-
-            {/* Info */}
-            <div style={{ position: "absolute", whiteSpace: "pre", top: "450px", left: "80px", width: "640px", lineHeight: "1.6", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold" }}>
+            {/* Business Info */}
+            <div style={{ position: "absolute", whiteSpace: "pre", top: "320px", left: "80px", width: "640px", lineHeight: "1.6", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold" }}>
               <div>
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>NAME:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.name || ""}</span><br />
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Name:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px", fontSize: "14pt" }}>{display.ownerName || ""}</span><br />
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Business name:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px", fontSize: "14pt" }}>{display.businessName || ""}</span><br />
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Nature of Business:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px", fontSize: "14pt" }}>{display.natureOfBusiness || ""}</span><br />
                 <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Address:</span>{" "}
                 <span style={{ color: "black", marginLeft: "10px" }}>{display.address || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Birthday:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.birthday ? formatDate(display.birthday) : ""}</span>
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif', marginLeft: "320px" }}>Age:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.age || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Provincial Address:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.provincialAddress || ""}</span>
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif', marginLeft: "200px" }}>Contact No.:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.contactNo || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Civil Status:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.civilStatus || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Remarks:</span>{" "}<br />
-                <span style={{ color: "black", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Residence in this Barangay, no derogatory record</span>{" "}<br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>This certification is being issued upon request for</span>{" "}
-                <span style={{ color: "black" }}>{display.requestReason || ""}</span>
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Date Issued:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px" }}>{display.dateIssued ? formatDate(display.dateIssued) : ""}</span><br />
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Date Expired:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px" }}>{display.dateExpired ? formatDate(display.dateExpired) : ""}</span><br />
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Remarks:</span>{" "}
+                <span style={{ color: "black" }}>Subject to continuing compliance with the </span><br />
+                <span style={{ color: "black" }}>above-mentioned laws and all applicable laws.</span>
               </div>
             </div>
 
-            {/* Applicant Signature */}
-            <div style={{ position: "absolute", top: "750px", left: "50px", width: "250px", textAlign: "center", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold" }}>
-              <div style={{ borderTop: "1px solid #000", width: "65%", margin: "auto" }}></div>
-              <div style={{ color: "black", fontFamily: "inherit" }}>Applicant's Signature</div>
-              <div style={{ margin: "15px auto 0 auto", width: "150px", height: "75px", border: "1px solid #000" }}></div>
+            {/* Red Text */}
+            <div style={{ position: "absolute", whiteSpace: "pre", top: "600px", left: "80px", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold", color: "red" }}>
+              This Business Clearance is issued for: <span style={{ color: "black" }}>{display.purpose || "Barangay Permit"}</span>
+            </div>
+
+            <div style={{ position: "absolute", whiteSpace: "pre", top: "640px", left: "80px", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold", color: "red" }}>
+              This certification is issued for: <span style={{ color: "black" }}>Local Employment</span>
+            </div>
+
+            {/* Owner's Signature */}
+            <div style={{ position: "absolute", top: "720px", left: "80px", width: "200px", textAlign: "center", fontFamily: '"Times New Roman", serif', fontSize: "10pt", fontWeight: "bold" }}>
+              <div style={{ fontWeight: "bold", color: "black", marginBottom: "10px" }}>Owner's Signature</div>
+              <div style={{ width: "150px", height: "80px", border: "2px solid #000", margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "8pt", color: "#666", flexDirection: "column" }}>
+                <div>Right</div>
+                <div>Thumb</div>
+                <div>Print</div>
+              </div>
             </div>
 
             {/* Punong Barangay */}
             <div style={{ position: "absolute", top: "900px", right: "100px", width: "300px", textAlign: "center" }}>
               <div style={{ borderTop: "1px solid #000", width: "80%", margin: "auto" }}></div>
-              <div style={{ fontFamily: "Impact, sans-serif", fontSize: "25pt", fontWeight: "bold", background: "linear-gradient(to bottom, yellow, orange)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", WebkitTextStroke: "1px black", color: "orange" }}>
+              <div style={{ fontFamily: "Impact, sans-serif", fontSize: "25pt", fontWeight: "bold", background: "linear-gradient(to bottom, orange, yellow, orange)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", WebkitTextStroke: "1px black", color: "orange" }}>
                 Arnold Dondonayos
               </div>
               <div style={{ fontFamily: '"Brush Script MT", cursive', fontSize: "20pt", color: "#000", marginTop: "-8px" }}>
-                Punong Barangay
+                Barangay Captain
               </div>
             </div>
           </div>
@@ -359,7 +375,7 @@ export default function BarangayClearance() {
 
       {/* RIGHT: CRUD container */}
   <Container maxWidth="sm" disableGutters sx={{ height: '100vh' }}>
-<Paper sx={{ 
+    <Paper sx={{ 
         bgcolor: 'grey.50',
         borderLeft: 1,
         borderColor: 'grey.300',
@@ -381,8 +397,8 @@ export default function BarangayClearance() {
       }}
     >
       <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h6" sx={{ fontWeight: 800, color: '#445C3C' }}>
-          Barangay Clearance
+        <Typography variant="h5" sx={{ fontWeight: 800, color: '#445C3C' }}>
+          Business Clearance
         </Typography>
         <Button
           variant="outlined"
@@ -461,13 +477,13 @@ export default function BarangayClearance() {
           <CardHeader
             title={
               <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600, color: 'grey.800' }}>
-                {editingId ? "Edit Record" : "New Clearance Record"}
+                {editingId ? "Edit Business Record" : "New Business Clearance"}
               </Typography>
             }
             subheader={
               selectedRecord && !editingId && (
                 <Typography variant="caption" sx={{ color: 'grey.500' }}>
-                  Viewing: {selectedRecord.name}
+                  Viewing: {selectedRecord.businessName}
                 </Typography>
               )
             }
@@ -477,12 +493,12 @@ export default function BarangayClearance() {
           <CardContent>
             <Stack spacing={2}>
               <TextField
-                label="Full Name *"
+                label="Owner's Name *"
                 variant="outlined"
                 size="small"
                 fullWidth
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                value={formData.ownerName}
+                onChange={(e) => setFormData({ ...formData, ownerName: e.target.value })}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&:hover fieldset': {
@@ -499,7 +515,52 @@ export default function BarangayClearance() {
               />
 
               <TextField
-                label="Address *"
+                label="Business Name *"
+                variant="outlined"
+                size="small"
+                fullWidth
+                value={formData.businessName}
+                onChange={(e) => setFormData({ ...formData, businessName: e.target.value })}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: 'success.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'success.main',
+                    },
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'success.main',
+                  },
+                }}
+              />
+
+              <TextField
+                label="Nature of Business *"
+                variant="outlined"
+                size="small"
+                fullWidth
+                placeholder="e.g., Sewing of Rugs, Food Service, Retail Store"
+                value={formData.natureOfBusiness}
+                onChange={(e) => setFormData({ ...formData, natureOfBusiness: e.target.value })}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: 'success.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'success.main',
+                    },
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'success.main',
+                  },
+                }}
+              />
+
+              <TextField
+                label="Business Address *"
                 variant="outlined"
                 size="small"
                 fullWidth
@@ -525,14 +586,14 @@ export default function BarangayClearance() {
               <Grid container spacing={1.5}>
                 <Grid item xs={6}>
                   <TextField
-                    label="Birthday *"
+                    label="Date Issued *"
                     type="date"
                     variant="outlined"
                     size="small"
                     fullWidth
                     InputLabelProps={{ shrink: true }}
-                    value={formData.birthday}
-                    onChange={(e) => handleBirthdayChange(e.target.value)}
+                    value={formData.dateIssued}
+                    onChange={(e) => handleDateIssuedChange(e.target.value)}
                     sx={{
                       '& .MuiOutlinedInput-root': {
                         '&:hover fieldset': {
@@ -550,65 +611,42 @@ export default function BarangayClearance() {
                 </Grid>
                 <Grid item xs={6}>
                   <TextField
-                    label="Age"
+                    label="Date Expired"
+                    type="date"
                     variant="outlined"
                     size="small"
-                    fullWidth
-                    value={formData.age}
-                    InputProps={{ readOnly: true }}
+                    fullWidt
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.dateExpired}
+                    InputProps={{ 
+                      readOnly: true,
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <CalendarTodayIcon sx={{ color: 'grey.400', fontSize: 16 }} />
+                        </InputAdornment>
+                      )
+                    }}
+                    helperText="Auto-calculated (1 year)"
                     sx={{
                       '& .MuiOutlinedInput-root': {
-                        bgcolor: 'grey.100',
+                        '&:hover fieldset': {
+                          borderColor: 'success.main',
+                        },
+                        '&.Mui-focused fieldset': {
+                          borderColor: 'success.main',
+                        },
                       },
+                      '& .MuiInputLabel-root.Mui-focused': {
+                        color: 'success.main',
+                      },
+                      '& .MuiFormHelperText-root': {
+                        color: 'grey.500',
+                        fontSize: '0.75rem'
+                      }
                     }}
                   />
                 </Grid>
               </Grid>
-
-              <TextField
-                label="Provincial Address"
-                variant="outlined"
-                size="small"
-                fullWidth
-                value={formData.provincialAddress}
-                onChange={(e) => setFormData({ ...formData, provincialAddress: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              />
-
-              <TextField
-                label="Contact Number"
-                variant="outlined"
-                size="small"
-                fullWidth
-                placeholder="09XXXXXXXXX"
-                value={formData.contactNo}
-                onChange={(e) => setFormData({ ...formData, contactNo: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              />
 
               <FormControl 
                 fullWidth 
@@ -627,68 +665,19 @@ export default function BarangayClearance() {
                   },
                 }}
               >
-                <InputLabel>Civil Status *</InputLabel>
+                <InputLabel>Purpose *</InputLabel>
                 <Select
-                  value={formData.civilStatus}
-                  label="Civil Status *"
-                  onChange={(e) => setFormData({ ...formData, civilStatus: e.target.value })}
+                  value={formData.purpose}
+                  label="Purpose *"
+                  onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
                 >
-                  {civilStatusOptions.map((status) => (
-                    <MenuItem key={status} value={status}>
-                      {status}
+                  {purposeOptions.map((purpose) => (
+                    <MenuItem key={purpose} value={purpose}>
+                      {purpose}
                     </MenuItem>
                   ))}
                 </Select>
               </FormControl>
-
-              <TextField
-                label="Request Reason *"
-                variant="outlined"
-                size="small"
-                fullWidth
-                multiline
-                rows={2}
-                placeholder="Job application, School enrollment, etc."
-                value={formData.requestReason}
-                onChange={(e) => setFormData({ ...formData, requestReason: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              />
-
-              <TextField
-                label="Date Issued *"
-                type="date"
-                variant="outlined"
-                size="small"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                value={formData.dateIssued}
-                onChange={(e) => setFormData({ ...formData, dateIssued: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              />
 
               <Box sx={{ display: 'flex', gap: 1, pt: 1 }}>
                 <Button
@@ -789,14 +778,17 @@ export default function BarangayClearance() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" sx={{ fontWeight: 600, color: 'grey.900', mb: 0.5 }}>
-                          {record.name}
+                          {record.businessName}
+                        </Typography>
+                        <Typography variant="caption" sx={{ color: 'grey.700', display: 'block', mb: 0.5 }}>
+                          Owner: {record.ownerName}
                         </Typography>
                         <Typography variant="caption" sx={{ color: 'grey.600', display: 'block', mb: 0.5 }}>
                           {record.address}
                         </Typography>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
                           <Chip 
-                            label={record.civilStatus} 
+                            label={record.natureOfBusiness} 
                             size="small" 
                             sx={{ 
                               bgcolor: 'grey.100', 
@@ -805,11 +797,9 @@ export default function BarangayClearance() {
                               height: 20
                             }} 
                           />
-                          {record.contactNo && (
-                            <Typography variant="caption" sx={{ color: 'grey.500', fontSize: '0.625rem' }}>
-                              {record.contactNo}
-                            </Typography>
-                          )}
+                          <Typography variant="caption" sx={{ color: 'grey.500', fontSize: '0.625rem' }}>
+                            {record.purpose}
+                          </Typography>
                           <Typography variant="caption" sx={{ color: 'grey.400', fontSize: '0.625rem' }}>
                             Issued: {formatDate(record.dateIssued)}
                           </Typography>
@@ -867,7 +857,3 @@ export default function BarangayClearance() {
     </Box>
   );
 }
-
-
-
-

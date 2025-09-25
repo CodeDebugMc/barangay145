@@ -51,6 +51,8 @@ import Sidebar from './components/Sidebar';
 import OathJobSeeker from './components/OathJobSeeker';
 import SoloParentForm from './components/SoloParentForm';
 import BarangayClearanceCRUD from './components/BarangayClearanceCRUD';
+import BusinessClearance from './components/BusinessClearance';
+import { useNavigate } from 'react-router-dom';
 
 
 const drawerWidth = 250;
@@ -66,7 +68,7 @@ function Header() {
         left: 0,
         width: '100%',
         zIndex: (theme) => theme.zIndex.drawer + 1,
-        bgcolor: '#0D4715',
+        bgcolor: '#445C3C',
         color: 'white',
         padding: '10px 20px',
         height: '60px',
@@ -86,7 +88,7 @@ function Header() {
         />
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 'bold', lineHeight: 1.2, margin: 0 }}>
-            Barangay 145
+           Caloocan Barangay 145
           </Typography>
           <Typography variant="body2" sx={{ lineHeight: 1.2, margin: 0, opacity: 0.9 }}>
             Information and Management Request System
@@ -104,6 +106,8 @@ function Navigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [certificatesDropdownOpen, setCertificatesDropdownOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -116,6 +120,9 @@ function Navigation() {
   const handleLogout = () => {
     logout();
     handleProfileMenuClose();
+    setTimeout(() => {
+        navigate('/home');
+      }, 1500);
   };
 
   const handleCertificatesDropdownToggle = () => {
@@ -144,8 +151,8 @@ function Navigation() {
       position="fixed"
       sx={{ 
         zIndex: 1201, 
-        bgcolor: '#0D4715', 
-        height: '60px',
+        bgcolor: '#445C3C', 
+        height: '65px',
         top: 0,
         left: 0,
         right: 0
@@ -168,17 +175,17 @@ function Navigation() {
               src={CaloocanLogo}
               alt="Logo"
               style={{
-                height: '40px',
+                height: '45px',
                 marginRight: '10px',
               }}
             />
            
             <Box>
-              <Typography variant="h5" noWrap sx={{ lineHeight: 1.2, color: 'white', marginTop: '8px' }}>
-                Barangay 145 
+              <Typography variant="h5" noWrap sx={{ lineHeight: 1.3, color: 'white', fontWeight: 'bold', marginTop: '8px' }}>
+                Caloocan Barangay 145 
               </Typography>
               <Typography variant="subtitle1" noWrap sx={{ color: 'white', fontWeight: 'bold', marginTop: '-5px' }}>
-               Information and Management of Request System
+               Information and Request Management System
               </Typography>
             </Box>
           </Box>
@@ -228,7 +235,7 @@ function Navigation() {
       {mobileMenuOpen && (
         <Box sx={{ 
           display: { xs: 'block', md: 'none' }, 
-          bgcolor: '#0a3a10',
+          bgcolor: '#445C3C',
           p: 2,
           borderTop: '1px solid rgba(255,255,255,0.1)'
         }}>
@@ -328,7 +335,7 @@ function AppContent() {
         alignItems: 'center', 
         height: '100vh',
         fontSize: '1.2rem',
-        color: '#0D4715'
+        color: '#445C3C'
       }}>
         Loading...
       </Box>
@@ -436,6 +443,16 @@ function AppContent() {
             } 
           />
 
+           <Route 
+            path="/business-clearance" 
+            element={
+               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                <BusinessClearance />
+              </ProtectedRoute>
+            } 
+          />
+
+
           <Route 
             path="/clearance" 
             element={
@@ -467,7 +484,7 @@ function AppContent() {
           left: 0,
           width: '100%',
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          bgcolor: '#0D4715',
+          bgcolor: '#445C3C',
           color: 'white',
           textAlign: 'center',
           padding: '20px',
@@ -487,7 +504,7 @@ function AppContent() {
         />
        
         <Typography variant="body2">
-          {'© 2024 Barangay 145 Management System. All rights reserved.'}
+          {'© 2025 - Caloocan Barangay 145 Information and Request Management System. All rights reserved.'}
         </Typography>
 
         <img

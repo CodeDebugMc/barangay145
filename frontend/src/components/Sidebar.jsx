@@ -48,7 +48,8 @@ export default function Sidebar() {
         { path: '/indigency', label: 'Indigency', icon: <AssignmentIcon /> },
         { path: '/barangay-clearance', label: 'Barangay Clearance', icon: <AssignmentIcon /> },
         { path: '/oath-job-seeker', label: 'Oath Job Seeker', icon: <AssignmentIcon /> },
-        { path: '/solo-parent-form', label: 'Solo Parent', icon: <AssignmentIcon /> }
+        { path: '/solo-parent-form', label: 'Solo Parent', icon: <AssignmentIcon /> },
+        { path: '/business-clearance', label: 'Business Clearance', icon: <AssignmentIcon /> }
 
       ]
     },
@@ -56,9 +57,9 @@ export default function Sidebar() {
   ].filter(item => hasPermission(item.permission));
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#0D4715', color: 'white' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#445C3C', color: 'white', pt:8 }}>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 2, pb: 1.5 }}>
-        <Avatar sx={{ bgcolor: 'white', color: '#0D4715' }}>
+        <Avatar sx={{ bgcolor: 'white', color: '#445C3C' }}>
           <AccountCircleIcon />
         </Avatar>
         <Box>
@@ -142,7 +143,7 @@ export default function Sidebar() {
         ModalProps={{ keepMounted: true }}
         sx={{
           display: { xs: 'block', md: 'none' },
-          '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box', bgcolor: '#0D4715' }
+          '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box', bgcolor: '#445C3C' }
         }}
       >
         {drawerContent}
@@ -154,7 +155,7 @@ export default function Sidebar() {
         open
         sx={{
           display: { xs: 'none', md: 'block' },
-          '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box', bgcolor: '#0D4715' }
+          '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box', bgcolor: '#445C3C' }
         }}
       >
         {drawerContent}
