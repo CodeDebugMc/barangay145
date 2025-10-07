@@ -52,6 +52,9 @@ import OathJobSeeker from './components/OathJobSeeker';
 import SoloParentForm from './components/SoloParentForm';
 import BarangayClearanceCRUD from './components/BarangayClearanceCRUD';
 import BusinessClearance from './components/BusinessClearance';
+import CertificateOfResidency from './components/CertificateOfResidency';
+import PermitToTravel from './components/PermitToTravel';
+
 import { useNavigate } from 'react-router-dom';
 
 
@@ -91,7 +94,7 @@ function Header() {
            Caloocan Barangay 145
           </Typography>
           <Typography variant="body2" sx={{ lineHeight: 1.2, margin: 0, opacity: 0.9 }}>
-            Information and Management Request System
+            Record and Management Request System
           </Typography>
         </Box>
       </Box>
@@ -185,7 +188,7 @@ function Navigation() {
                 Caloocan Barangay 145 
               </Typography>
               <Typography variant="subtitle1" noWrap sx={{ color: 'white', fontWeight: 'bold', marginTop: '-5px' }}>
-               Information and Request Management System
+               Record and Request Management System
               </Typography>
             </Box>
           </Box>
@@ -462,6 +465,25 @@ function AppContent() {
             } 
           />
 
+           <Route 
+            path="/certificate-residency" 
+            element={
+               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                <CertificateOfResidency />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/permit-to-travel" 
+            element={
+               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                <PermitToTravel />
+              </ProtectedRoute>
+            } 
+          />
+
+
           <Route 
             path="/users" 
             element={
@@ -470,6 +492,8 @@ function AppContent() {
               </ProtectedRoute>
             } 
           />
+
+          
         </Routes>
         </Box>
       </Box>
@@ -504,7 +528,7 @@ function AppContent() {
         />
        
         <Typography variant="body2">
-          {'© 2025 - Caloocan Barangay 145 Information and Request Management System. All rights reserved.'}
+          {'© 2025 - Caloocan Barangay 145 Record and Request Management System. All rights reserved.'}
         </Typography>
 
         <img

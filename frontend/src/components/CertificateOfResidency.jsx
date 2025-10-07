@@ -34,8 +34,9 @@ import {
   Delete as DeleteIcon,
   Description as FileTextIcon
 } from '@mui/icons-material';
+import { Italic } from "lucide-react";
 
-export default function Indigency() {
+export default function CertificateOfResidency() {
   const apiBase = "http://localhost:5000";
 
   const [records, setRecords] = useState([]);
@@ -264,278 +265,86 @@ export default function Indigency() {
               background: "#fff",
             }}
           >
-               {/* Logos */}
-               <img
-                 style={{ position: "absolute", width: "80px", height: "80px", top: "60px", left: "40px" }}
-                 src={CaloocanLogo}
-                 alt="Logo 1"
-               />
-               <img
-                 style={{ position: "absolute", width: "80px", height: "80px", top: "60px", left: "130px" }}
-                 src={BagongPilipinas}
-                 alt="Logo 2"
-               />
-               <img
-                 style={{ position: "absolute", width: "100px", height: "100px", top: "50px", right: "40px" }}
-                 src={Logo145}
-                 alt="Logo 3"
-               />
-       
-               {/* Watermark */}
-               <img
-                 style={{
-                   position: "absolute",
-                   opacity: 0.3,
-                   width: "500px",
-                   left: "50%",
-                   top: "250px",
-                   transform: "translateX(-50%)",
-                 }}
-                 src={Logo145}
-                 alt="Watermark"
-               />
-       
-               {/* Header Text */}
-               <div
-                 style={{
-                   position: "absolute",
-                   whiteSpace: "pre",
-                   textAlign: "center",
-                   width: "100%",
-                   fontSize: "20px",
-                   fontWeight: "bold",
-                   fontFamily: '"Lucida Calligraphy", cursive',
-                   top: "50px",
-                 }}
-               >
-                 Republic of the Philippines
-               </div>
-       
-               <div
-                 style={{
-                   position: "absolute",
-                   whiteSpace: "pre",
-                   textAlign: "center",
-                   width: "100%",
-                   fontSize: "13pt",
-                   fontWeight: "bold",
-                   fontFamily: "Arial, sans-serif",
-                   top: "84px",
-                 }}
-               >
-                 CITY OF CALOOCAN
-               </div>
-       
-               <div
-                 style={{
-                   position: "absolute",
-                   whiteSpace: "pre",
-                   textAlign: "center",
-                   width: "100%",
-                   fontSize: "18px",
-                   fontWeight: "bold",
-                   fontFamily: '"Arial Black", sans-serif',
-                   top: "110px",
-                 }}
-               >
-                 BARANGAY 145 ZONES 13 DIST. 1
-               </div>
-       
-               <div
-                 style={{
-                   position: "absolute",
-                   whiteSpace: "pre",
-                   textAlign: "center",
-                   width: "100%",
-                   fontSize: "18px",
-                   fontWeight: "bold",
-                   fontFamily: '"Arial Black", sans-serif',
-                   top: "138px",
-                 }}
-               >
-                 Tel. No. 8711 - 7134
-               </div>
-       
-               <div
-                 style={{
-                   position: "absolute",
-                   whiteSpace: "pre",
-                   textAlign: "center",
-                   width: "100%",
-                   fontSize: "19px",
-                   fontWeight: "bold",
-                   fontFamily: '"Arial Black", sans-serif',
-                   top: "166px",
-                 }}
-               >
-                 OFFICE OF THE BARANGAY CHAIRMAN
-               </div>
-       
-               <div
-                 style={{
-                   position: "absolute",
-                   top: "220px",
-                   width: "100%",
-                   textAlign: "center",
-                 }}
-               >
-                 <span
-                   style={{
-                     fontFamily: '"Brush Script MT", cursive',
-                     fontSize: "30px",
-                     fontWeight: "normal",
-                     display: "inline-block",
-                     background: "#0b7030",
-                     color: "#fff",
-                     padding: "4px 70px",
-                     borderRadius: "8px",
-                   }}
-                 >
-                   Certificate of Indigency
-                 </span>
-               </div>
-       
-               {/* Date */}
-               <div
-                 style={{
-                   position: "absolute",
-                   whiteSpace: "pre",
-                   top: "320px",
-                   right: "250px",
-                   fontFamily: '"Times New Roman", serif',
-                   fontSize: "12pt",
-                   fontWeight: "bold",
-                   color: "red",
-                 }}
-               >
-                 Date: {display.dateIssued ? formatDate(display.dateIssued) : ""}
-               </div>
-       
-               {/* Body */}
-               <div
-                 style={{
-                   position: "absolute",
-                   whiteSpace: "pre",
-                   top: "370px",
-                   left: "80px",
-                   width: "640px",
-                   textAlign: "justify",
-                   fontFamily: '"Times New Roman", serif',
-                   fontSize: "12pt",
-                   fontWeight: "bold",
-                   color: "black",
-                 }}
-               >
-                 To whom it may concern:<br />
-                 <span style={{ marginLeft: "50px" }}></span>This is to certify that the person whose name and thumb print
-                 appear<br /> here on has requested a Certificate of Indigency from this office
-                 and the result/s<br />  is/arelisted below and valid for six (6) months only.
-               </div>
-       
-               {/* Info */}
-               <div
-                 style={{
-                   position: "absolute",
-                   whiteSpace: "pre",
-                   top: "470px",
-                   left: "80px",
-                   width: "640px",
-                   lineHeight: "1.6",
-                   fontFamily: '"Times New Roman", serif',
-                   fontSize: "12pt",
-                   fontWeight: "bold",
-                 }}
-               >
-                 <div>
-                   <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Name:</span>{" "}
-                                  <span style={{ color: "black", marginLeft: "10px" }}>{display.name || ""}</span><br />
-                   <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Address:</span>{" "}
-                                  <span style={{ color: "black", marginLeft: "10px" }}>{display.address || ""}</span><br />
-                   <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>Birthday:</span>{" "}
-                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.birthday ? formatDate(display.birthday) : ""}</span>
-                   <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif',  marginLeft: "320px" }}>Age:</span>{" "}
-                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.age || ""}</span><br />
-                   <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>Provincial Address:</span>{" "}
-                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.provincialAddress || ""}</span>
-                   <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif',  marginLeft: "200px" }}>Contact No.:</span>{" "}
-                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.contactNo || ""}</span><br />
-                   <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>Civil Status:</span>{" "}
-                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.civilStatus || ""}</span><br />
+            {/* Logos */}
+            <img style={{ position: "absolute", width: "80px", height: "80px", top: "60px", left: "60px" }} src={CaloocanLogo} alt="Logo 1" />
+            <img style={{ position: "absolute", width: "120px", height: "80px", top: "60px", right: "40px" }} src={Logo145} alt="Logo 3" />
 
-                   <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>Remarks:</span>{" "}
-                   <span style={{ color: "black", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>
-                     Residence in this Barangay and certifies that he/she belongs to<br /> indigent families.
-                   </span>{" "}<br />
-                   <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>
-                     This certification is being issued upon request for</span>{" "}
-                                   <span style={{ color: "black" }}>{display.requestReason || ""}</span>
+            {/* Watermark */}
+            <img
+              style={{ position: "absolute", opacity: 0.2, width: "650px", left: "50%", top: "30px", transform: "translateX(-50%)" }}
+              src={Logo145}
+              alt="Watermark"
+            />
 
-                 </div>
-               </div>
-       
-               {/* Applicant Signature */}
-               <div
-                 style={{
-                   position: "absolute",
-                   top: "750px",
-                   left: "50px",
-                   width: "250px",
-                   textAlign: "center",
-                   fontFamily: '"Times New Roman", serif',
-                   fontSize: "12pt",
-                   fontWeight: "bold",
-                 }}
-               >
-                 <div style={{ borderTop: "2px solid #000", width: "65%", margin: "auto"}}></div>
-                 <div style={{ color: "black", fontFamily: "inherit" }}>Applicant&apos;s Signature</div>
-                 <div
-                   style={{
-                     margin: "15px auto 0 auto",
-                     width: "150px",
-                     height: "75px",
-                     border: "1px solid #000",
-                   }}
-                 ></div>
-               </div>
-       
-               {/* Punong Barangay */}
-               <div
-                 style={{
-                   position: "absolute",
-                   top: "900px",
-                   right: "100px",
-                   width: "300px",
-                   textAlign: "center",
-                 }}
-               >
-                 <div style={{ borderTop: "2.5px solid #000", width: "90%", margin: "auto" }}></div>
-                 <div
-                   style={{
-                     fontFamily: "Impact, sans-serif",
-                     fontSize: "25pt",
-                     fontWeight: "bold",
-                     backgroundImage: "linear-gradient(to bottom, orange 50%, yellow 20%, orange 70%)", 
-                     WebkitBackgroundClip: "text",
-                     WebkitTextFillColor: "transparent",
-                     WebkitTextStroke: "1px black",
-                     display: "inline-block", // keeps gradient tight to text
-                   }}
-                 >
-                   Arnold Dondonayos
-                 </div>
-       
-       
-                 <div
-                   style={{
-                     fontFamily: '"Brush Script MT", cursive',
-                     fontSize: "20pt",
-                     color: "#000",
-                     marginTop: "-8px",
-                     fontWeight: "bold",
-                   }}
-                 >
-                   Punong Barangay
-                 </div>
+            {/* Header Text */}
+            <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "20px", fontWeight: "bold", fontFamily: '"Lucida Calligraphy", cursive', top: "50px" }}>
+              Republic of the Philippines
+            </div>
+            <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "13pt", fontWeight: "bold", fontFamily: "Arial, sans-serif", top: "84px" }}>
+              CITY OF CALOOCAN
+            </div>
+            <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "15pt", fontWeight: "bold", fontFamily: '"Arial Black", sans-serif', top: "110px" }}>
+              BARANGAY 145 ZONES 13 DIST. 1
+            </div>
+            <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "15pt", fontWeight: "bold", fontFamily: '"Arial Black", sans-serif', top: "138px" }}>
+              Tel. No. 8711 - 7134
+            </div>
+            <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "12pt", fontWeight: "bold", fontFamily: '"Arial Black", sans-serif', top: "166px" }}>
+              OFFICE OF THE BARANGAY CHAIRMAN
+            </div>
+            <div style={{ position: "absolute", top: "200px", width: "100%", textAlign: "center" }}>
+              <span style={{ fontFamily: 'Times New Roman', fontSize: "20pt", fontWeight: "bold", display: "inline-block", color: "#0b7030", padding: "4px 70px", fontStyle: "italic", textDecoration: "underline" }}>
+                CERTIFICATE OF RESIDENCY
+              </span>
+            </div>
+
+            {/* Date */}
+            <div style={{ position: "absolute", whiteSpace: "pre", top: "270px", right: "200px", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold", color: "red" }}>
+              Date: {display.dateIssued ? formatDate(display.dateIssued) : ""}
+            </div>
+
+            {/* Body */}
+            <div style={{ position: "absolute", whiteSpace: "pre", top: "330px", left: "80px", width: "640px", textAlign: "justify", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold", color: "black" }}>
+              To whom it may concern:<br />
+              <span style={{ marginLeft: "50px" }}></span>This is to certify that the person whose name hereon is a bonafide<br /> resident
+             in this Barangay and the result/s is/are listed below and valid for <br />six (6) months only.
+
+            </div>
+
+            {/* Info */}
+            <div style={{ position: "absolute", whiteSpace: "pre", top: "450px", left: "80px", width: "640px", lineHeight: "1.6", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold" }}>
+              <div>
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>NAME:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px" }}>{display.name || ""}</span><br />
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Address:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px" }}>{display.address || ""}</span><br />
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Birthday:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px" }}>{display.birthday ? formatDate(display.birthday) : ""}</span>
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif', marginLeft: "320px" }}>Age:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px" }}>{display.age || ""}</span><br />
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Provincial Address:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px" }}>{display.provincialAddress || ""}</span>
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif', marginLeft: "200px" }}>Contact No.:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px" }}>{display.contactNo || ""}</span><br />
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Civil Status:</span>{" "}
+                <span style={{ color: "black", marginLeft: "10px" }}>{display.civilStatus || ""}</span><br />
+                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>This certification is being issued upon request for</span>{" "}
+                <span style={{ color: "black" }}>{display.requestReason || ""}</span>
+              </div>
+            </div>
+
+          
+            <div style={{ position: "absolute", top: "700px", left: "80px", width: "250px", textAlign: "left", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold" }}>
+              <div style={{ color: "black", fontFamily: "inherit" }}>Certified Correct:</div> <br /><br />
+              <div style={{ color: "black", fontFamily: "inherit" }}>Roselyn Anore</div>
+               <div style={{ color: "black", fontFamily: "inherit" }}>Barangay Secretary</div>
+             
+            </div>
+
+            <div style={{ position: "absolute", top: "760px", right: "20px", width: "300px", textAlign: "left", fontFamily: '"Times New Roman", serif', fontWeight: "bold" }}>
+               <div style={{ color: "black", fontFamily: "inherit", fontSize: "12pt" }}>Attested: </div> <br /><br />
+              <div style={{ color: "black", fontFamily: "inherit", fontSize: "16pt", fontStyle: "italic" }}>ARNOLD DONDONAYOS</div>
+               <div style={{ color: "black", fontFamily: "inherit", fontSize: "12pt", fontStyle: "italic" }}>Barangay Chairman</div>
             </div>
           </div>
         </div>
@@ -567,7 +376,7 @@ export default function Indigency() {
     >
       <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography variant="h6" sx={{ fontWeight: 800, color: '#445C3C' }}>
-          Indigency
+          Certificate of Residency
         </Typography>
         <Button
           variant="outlined"

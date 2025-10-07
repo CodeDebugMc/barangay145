@@ -49,7 +49,11 @@ export default function Sidebar() {
         { path: '/barangay-clearance', label: 'Barangay Clearance', icon: <AssignmentIcon /> },
         { path: '/oath-job-seeker', label: 'Oath Job Seeker', icon: <AssignmentIcon /> },
         { path: '/solo-parent-form', label: 'Solo Parent', icon: <AssignmentIcon /> },
-        { path: '/business-clearance', label: 'Business Clearance', icon: <AssignmentIcon /> }
+        { path: '/business-clearance', label: 'Business Clearance', icon: <AssignmentIcon /> },
+        { path: '/certificate-residency', label: 'Certificate of Residency', icon: <AssignmentIcon /> },
+        { path: '/permit-to-travel', label: 'Permit To Travel', icon: <AssignmentIcon /> }
+
+
 
       ]
     },
