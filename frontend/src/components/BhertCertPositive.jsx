@@ -22,7 +22,8 @@ import {
   InputAdornment,
   IconButton,
   Chip,
-  Stack
+  Stack,
+  boxClasses
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -222,27 +223,12 @@ export default function BarangayClearance() {
     return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
   }
 
-  return (
-  <Box sx={{ minHeight: '100vh', bgcolor: 'grey.100', display: 'flex' }}>
-      {/* LEFT: Certificate preview (previous layout) */}
-      <Box sx={{ flex: 1, p: 2, overflow: 'auto',}}>
-      <Box
-        sx={{
-          margin: 0,
-          padding: 0,
-          background: "#f2f2f2",
-          width: "100%",
-          minHeight: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "flex-start",
-          overflow: "auto",
-           border: '1px solid black',
-           marginBottom: 2,
-        }}
-      >
-        <div
-          style={{
+   return (
+    <Box sx={{ minHeight: "100vh", bgcolor: "grey.100", display: "flex" }}>
+      {/* LEFT SIDE - Certificate Preview */}
+      <Box sx={{ flex: 1, p: 2, overflow: "auto" }}>
+        <Box
+          sx={{
             margin: 0,
             padding: 0,
             background: "#f2f2f2",
@@ -252,123 +238,173 @@ export default function BarangayClearance() {
             justifyContent: "center",
             alignItems: "flex-start",
             overflow: "auto",
+            border: "1px solid black",
           }}
         >
           <div
             style={{
               position: "relative",
-              width: "8.5in",
-              height: "11in",
+              width: "794px",
+              height: "1123px",
               margin: "20px auto",
               boxShadow: "0 0 8px rgba(0,0,0,0.2)",
               background: "#fff",
+              fontFamily: "Calibri, sans-serif",
+              fontWeight: "bold",
             }}
           >
-             {/* Logos */}
-          <img
-            style={{ position: "absolute", width: "80px", height: "80px", top: "60px", left: "40px" }}
-            src={CaloocanLogo}
-            alt="Logo 1"
-          />
-          <img
-            style={{ position: "absolute", width: "80px", height: "80px", top: "60px", left: "130px" }}
-            src={BagongPilipinas}
-            alt="Logo 2"
-          />
-          <img
-            style={{ position: "absolute", width: "100px", height: "100px", top: "50px", right: "40px" }}
-            src={Logo145}
-            alt="Logo 3"
-          />
-
+            {/* Logos */}
+            <div
+              style={{
+                position: "absolute",
+                top: "20px",
+                width: "100%",
+                display: "flex",
+                justifyContent: "center",
+                gap: "30px",
+              }}
+            >
+              <img
+                style={{ width: "80px", height: "80px" }}
+                src={CaloocanLogo}
+                alt="Caloocan"
+              />
+              <img
+                style={{ width: "80px", height: "80px" }}
+                src={BagongPilipinas}
+                alt="Bagong Pilipinas"
+              />
+              <img
+                style={{ width: "80px", height: "80px" }}
+                src={Logo145}
+                alt="Barangay 145"
+              />
+            </div>
 
             {/* Watermark */}
             <img
-              style={{ position: "absolute", opacity: 0.2, width: "650px", left: "50%", top: "30px", transform: "translateX(-50%)" }}
+              style={{
+                position: "absolute",
+                opacity: 0.12,
+                width: "600px",
+                left: "50%",
+                top: "200px",
+                transform: "translateX(-50%)",
+              }}
               src={Logo145}
               alt="Watermark"
             />
 
-            {/* Header Text */}
-            <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "20px", fontWeight: "bold", fontFamily: '"Lucida Calligraphy", cursive', top: "50px" }}>
-              Republic of the Philippines
-            </div>
-            <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "13pt", fontWeight: "bold", fontFamily: "Arial, sans-serif", top: "84px" }}>
-              CITY OF CALOOCAN
-            </div>
-            <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "15pt", fontWeight: "bold", fontFamily: '"Arial Black", sans-serif', top: "110px" }}>
-              BARANGAY 145 ZONES 13 DIST. 1
-            </div>
-            <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "15pt", fontWeight: "bold", fontFamily: '"Arial Black", sans-serif', top: "138px" }}>
-              Tel. No. 8711 - 7134
-            </div>
-            <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "12pt", fontWeight: "bold", fontFamily: '"Arial Black", sans-serif', top: "166px" }}>
-              OFFICE OF THE BARANGAY CHAIRMAN
-            </div>
-            <div style={{ position: "absolute", top: "196px", width: "100%", textAlign: "center" }}>
-              <span style={{ fontFamily: '"Brush Script MT", cursive', fontSize: "28pt", fontWeight: "normal", display: "inline-block", background: "#0b7030", color: "#fff", padding: "4px 70px", borderRadius: "8px" }}>
-                Barangay Clearance
-              </span>
-            </div>
-
-            {/* Date */}
-            <div style={{ position: "absolute", whiteSpace: "pre", top: "270px", right: "200px", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold", color: "red" }}>
-              Date: {display.dateIssued ? formatDate(display.dateIssued) : ""}
+            {/* Header */}
+            <div style={{ position: "absolute", top: "120px", width: "100%" }}>
+              <div
+                style={{
+                  textAlign: "center",
+                  fontSize: "12pt",
+                }}
+              >
+                Republic of the Philippines
+              </div>
+              <div
+                style={{
+                  textAlign: "center",
+                  fontSize: "12pt",
+                }}
+              >
+                City of Caloocan
+              </div>
+              <div
+                style={{
+                  textAlign: "center",
+                  fontSize: "12pt",
+                }}
+              >
+                BARANGAY 145 ZONE 13 DISTRICT 1
+              </div>
+              <div
+                style={{
+                  textAlign: "center",
+                  fontSize: "16pt",
+                  marginTop: "4px",
+                }}
+              >
+                OFFICE OF THE BARANGAY CAPTAIN
+              </div>
+              <div
+                style={{
+                  textAlign: "center",
+                  fontSize: "20pt",
+                  letterSpacing: "6px",
+                  marginTop: "30px",
+                }}
+              >
+                B H E R T &nbsp; C E R T I F I C A T I O N
+              </div>
             </div>
 
             {/* Body */}
-            <div style={{ position: "absolute", whiteSpace: "pre", top: "330px", left: "80px", width: "640px", textAlign: "justify", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold", color: "black" }}>
-              To whom it may concern:<br />
-              <span style={{ marginLeft: "50px" }}></span>This is to certify that the person whose name and thumb print
-              appear<br /> hereon has requested a Barangay Clearance from this office
-              and the result/s<br />  is/arelisted below and valid for six (6) months only.
+            <div
+              style={{
+                position: "absolute",
+                top: "300px",
+                fontSize: "14pt",
+                textAlign: "justify",
+                margin: "0 80px",
+                width: "640px",
+              }}
+            >
+              To Whom It May Concern: <br />
+              <p style={{ textIndent: "40px" }}>
+                This is to certify that <span style={{ textDecoration: "underline" }}>
+              {formData.name || "____________________"}
+            </span>
+            
+            , a Filipino citizen and resident of{" "}<span style={{ textDecoration: "underline" }}>
+              {formData.address || "____________________"}
+            </span> {" "}
+            Bagong Barrio Caloocan City. He/She is INCLUDED in the
+            list of household in this barangay, who is being monitored with COVID-19 and
+            He/She is INCLUDED in the list of persons who is being monitored in this barangay
+            to the PUI or CONFIRMED with COVID-19. She completed One Wk. Quarantine period,
+            and monitored by our BHERT officer.
+              </p>
+
+              <p style={{ textIndent: "40px" }}>
+                  This Certification is issued upon request of the above-mentioned name for
+            {" "}
+            <span style={{ textDecoration: "underline" }}>
+              {formData.requestReason || "___________"}
+            </span>.
+              </p>
+
+              <p style={{ textIndent: "40px" }}>
+                 Done in the Office of the Punong Barangay 145, Zone 13, District 1, City
+            of Caloocan this {display.dateIssued ? formatDate(display.dateIssued) : ""}.
+              </p>
+
+        
             </div>
 
-            {/* Info */}
-            <div style={{ position: "absolute", whiteSpace: "pre", top: "450px", left: "80px", width: "640px", lineHeight: "1.6", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold" }}>
-              <div>
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>NAME:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.name || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Address:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.address || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Birthday:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.birthday ? formatDate(display.birthday) : ""}</span>
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif', marginLeft: "320px" }}>Age:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.age || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Provincial Address:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.provincialAddress || ""}</span>
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif', marginLeft: "200px" }}>Contact No.:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.contactNo || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Civil Status:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.civilStatus || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Remarks:</span>{" "}<br />
-                <span style={{ color: "black", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Residence in this Barangay, no derogatory record</span>{" "}<br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>This certification is being issued upon request for</span>{" "}
-                <span style={{ color: "black" }}>{display.requestReason || ""}</span>
-              </div>
+            {/* Signature Section */}
+            <div style={{ position: "absolute", left: "80px", top: "900px" }}>
+              Certified by: <br />
+              <br />
+              ROSALINA P. ANORE
+              <br />
+              <span style={{ fontSize: "14pt" }}>Brgy. Secretary</span>
             </div>
 
-            {/* Applicant Signature */}
-            <div style={{ position: "absolute", top: "750px", left: "50px", width: "250px", textAlign: "center", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold" }}>
-              <div style={{ borderTop: "1px solid #000", width: "65%", margin: "auto" }}></div>
-              <div style={{ color: "black", fontFamily: "inherit" }}>Applicant's Signature</div>
-              <div style={{ margin: "15px auto 0 auto", width: "150px", height: "75px", border: "1px solid #000" }}></div>
-            </div>
-
-            {/* Punong Barangay */}
-            <div style={{ position: "absolute", top: "900px", right: "100px", width: "300px", textAlign: "center" }}>
-              <div style={{ borderTop: "1px solid #000", width: "80%", margin: "auto" }}></div>
-              <div style={{ fontFamily: "Impact, sans-serif", fontSize: "25pt", fontWeight: "bold", background: "linear-gradient(to bottom, yellow, orange)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", WebkitTextStroke: "1px black", color: "orange" }}>
-                Arnold Dondonayos
-              </div>
-              <div style={{ fontFamily: '"Brush Script MT", cursive', fontSize: "20pt", color: "#000", marginTop: "-8px" }}>
-                Punong Barangay
-              </div>
+            <div style={{ position: "absolute", left: "80px", top: "1000px" }}>
+              Noted by: <br />
+              <br />
+              <span style={{ fontSize: "16pt" }}>ARNOLD DONDONAYOS</span>
+              <br />
+              <span style={{ fontSize: "14pt" }}>Punong Barangay</span>
             </div>
           </div>
-        </div>
+        </Box>
       </Box>
-      </Box>
+ 
 
       {/* RIGHT: CRUD container */}
   <Container maxWidth="sm" disableGutters sx={{ height: '100vh' }}>
@@ -877,7 +913,7 @@ export default function BarangayClearance() {
     )}
   </Paper>
 </Container>
-    </Box>
+ </Box>
   );
 }
 

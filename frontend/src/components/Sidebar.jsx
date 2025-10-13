@@ -24,6 +24,7 @@ import {
   AccountCircle as AccountCircleIcon
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import { ChartBarIcon, ChartPieIcon, PieChartIcon } from 'lucide-react';
 
 const drawerWidth = 250;
 
@@ -38,6 +39,7 @@ export default function Sidebar() {
   const navItems = [
     { path: '/home', label: 'Home', icon: <HomeIcon />, permission: 'view_dashboard' },
     { path: '/residents', label: 'Residents', icon: <PeopleIcon />, permission: 'manage_residents' },
+    { path: '/reports', label: 'Reports', icon: <ChartBarIcon />, permission: 'manage_residents' },
     {
       path: '/certificates',
       label: 'Certificates',
@@ -51,9 +53,11 @@ export default function Sidebar() {
         { path: '/solo-parent-form', label: 'Solo Parent', icon: <AssignmentIcon /> },
         { path: '/business-clearance', label: 'Business Clearance', icon: <AssignmentIcon /> },
         { path: '/certificate-residency', label: 'Certificate of Residency', icon: <AssignmentIcon /> },
-        { path: '/permit-to-travel', label: 'Permit To Travel', icon: <AssignmentIcon /> }
-
-
+        { path: '/permit-to-travel', label: 'Permit To Travel', icon: <AssignmentIcon /> },
+        { path: '/cash-assistance', label: 'Cash Assistance', icon: <AssignmentIcon /> },
+        { path: '/cohabitation', label: 'Cohabitation', icon: <AssignmentIcon /> },
+        { path: '/financial-assistance', label: 'Financial Assistance', icon: <AssignmentIcon /> },
+        { path: '/bhert-cert-positive', label: 'Bhert Certificate Positive', icon: <AssignmentIcon /> },
 
       ]
     },

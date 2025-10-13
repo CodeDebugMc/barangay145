@@ -34,8 +34,9 @@ import {
   Delete as DeleteIcon,
   Description as FileTextIcon
 } from '@mui/icons-material';
+import { Italic } from "lucide-react";
 
-export default function BarangayClearance() {
+export default function FinancialAssistance() {
   const apiBase = "http://localhost:5000";
 
   const [records, setRecords] = useState([]);
@@ -264,23 +265,9 @@ export default function BarangayClearance() {
               background: "#fff",
             }}
           >
-             {/* Logos */}
-          <img
-            style={{ position: "absolute", width: "80px", height: "80px", top: "60px", left: "40px" }}
-            src={CaloocanLogo}
-            alt="Logo 1"
-          />
-          <img
-            style={{ position: "absolute", width: "80px", height: "80px", top: "60px", left: "130px" }}
-            src={BagongPilipinas}
-            alt="Logo 2"
-          />
-          <img
-            style={{ position: "absolute", width: "100px", height: "100px", top: "50px", right: "40px" }}
-            src={Logo145}
-            alt="Logo 3"
-          />
-
+            {/* Logos */}
+            <img style={{ position: "absolute", width: "80px", height: "80px", top: "60px", left: "60px" }} src={CaloocanLogo} alt="Logo 1" />
+            <img style={{ position: "absolute", width: "120px", height: "80px", top: "60px", right: "40px" }} src={Logo145} alt="Logo 3" />
 
             {/* Watermark */}
             <img
@@ -305,65 +292,114 @@ export default function BarangayClearance() {
             <div style={{ position: "absolute", whiteSpace: "pre", textAlign: "center", width: "100%", fontSize: "12pt", fontWeight: "bold", fontFamily: '"Arial Black", sans-serif', top: "166px" }}>
               OFFICE OF THE BARANGAY CHAIRMAN
             </div>
-            <div style={{ position: "absolute", top: "196px", width: "100%", textAlign: "center" }}>
-              <span style={{ fontFamily: '"Brush Script MT", cursive', fontSize: "28pt", fontWeight: "normal", display: "inline-block", background: "#0b7030", color: "#fff", padding: "4px 70px", borderRadius: "8px" }}>
-                Barangay Clearance
+            <div style={{ position: "absolute", top: "200px", width: "100%", textAlign: "center" }}>
+              <span style={{ fontFamily: 'Times New Roman', fontSize: "20pt", fontWeight: "bold", display: "inline-block", color: "#0b7030", padding: "4px 70px", fontStyle: "italic", textDecoration: "underline" }}>
+                CERTIFICATION
               </span>
             </div>
 
-            {/* Date */}
-            <div style={{ position: "absolute", whiteSpace: "pre", top: "270px", right: "200px", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold", color: "red" }}>
-              Date: {display.dateIssued ? formatDate(display.dateIssued) : ""}
+
+         {/* Body */}
+
+            <div
+            style={{
+                position: "absolute",
+                whiteSpace: "pre-wrap",
+                top: "330px",
+                left: "80px",
+                width: "640px",
+                textAlign: "justify",
+                fontFamily: '"Times New Roman", serif',
+                fontSize: "12pt",
+                fontWeight: "bold",
+                color: "black",
+            }}
+            >
+            TO WHOM IT MAY CONCERN:
+
+            <p style={{ textIndent: "50px" }}>
+                This is to certify that,{" "}
+                <span style={{ textDecoration: "underline" }}>
+                {formData.name || "____________________"}
+                </span>
+                ,{" "}
+                <span style={{ textDecoration: "underline" }}>
+                {formData.age || "___"}
+                </span>{" "}
+                yrs. old, born on{" "}
+                <span style={{ textDecoration: "underline" }}>
+                {formData.birthday
+                    ? new Date(formData.birthday).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "2-digit",
+                        year: "numeric",
+                    })
+                    : "__________"}
+                </span>
+                , a bonafide resident at Barangay 145 with actual postal address located at{" "}
+                <span style={{ textDecoration: "underline" }}>
+                {formData.address || "____________________"}
+                </span>
+                , Barangay 145, Bagong Barrio, Caloocan City.
+            </p>
+
+            <p style={{ textIndent: "50px" }}>
+                This further certifies that the above-mentioned name has a LOW SOURCE OF INCOME{" "}
+                <span style={{ textDecoration: "underline" }}>
+                {formData.work || "____________________"}
+                </span>{" "}
+                <span style={{ textDecoration: "underline" }}>
+                {formData.purpose || "____________________"}
+                </span>
+                , with monthly income not exceeding {" "}
+                <span style={{ textDecoration: "underline" }}>
+                {formData.income || "__________"}
+                </span>
+                .
+            </p>
+
+            <p style={{ textIndent: "50px" }}>
+                This certification is being issued for Financial Assistance.
+            </p>
+
+            <p style={{ textIndent: "50px" }}>
+                Issued this{" "}
+                <span style={{ textDecoration: "underline" }}>
+                {formData.dateIssued
+                    ? (() => {
+                        const date = new Date(formData.dateIssued);
+                        const day = date.getDate();
+                        const month = date.toLocaleString("default", { month: "short" });
+                        const year = date.getFullYear();
+                        const suffix =
+                        day % 10 === 1 && day !== 11
+                            ? "st"
+                            : day % 10 === 2 && day !== 12
+                            ? "nd"
+                            : day % 10 === 3 && day !== 13
+                            ? "rd"
+                            : "th";
+                        return `${day}${suffix} day of ${month}, ${year}`;
+                    })()
+                    : "__________"}
+                </span>{" "}
+                at Barangay 145, Zone 13, District 1, Caloocan City.
+            </p>
             </div>
 
-            {/* Body */}
-            <div style={{ position: "absolute", whiteSpace: "pre", top: "330px", left: "80px", width: "640px", textAlign: "justify", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold", color: "black" }}>
-              To whom it may concern:<br />
-              <span style={{ marginLeft: "50px" }}></span>This is to certify that the person whose name and thumb print
-              appear<br /> hereon has requested a Barangay Clearance from this office
-              and the result/s<br />  is/arelisted below and valid for six (6) months only.
+
+          
+            <div style={{ position: "absolute", top: "700px", left: "80px", width: "250px", textAlign: "left", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold" }}>
+              <div style={{ color: "black", fontFamily: "inherit" }}>Certified Correct:</div> <br /><br />
+              <div style={{ color: "black", fontFamily: "inherit" }}>Roselyn Anore</div>
+               <div style={{ color: "black", fontFamily: "inherit" }}>Barangay Secretary</div>
+             
             </div>
 
-            {/* Info */}
-            <div style={{ position: "absolute", whiteSpace: "pre", top: "450px", left: "80px", width: "640px", lineHeight: "1.6", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold" }}>
-              <div>
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>NAME:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.name || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Address:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.address || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Birthday:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.birthday ? formatDate(display.birthday) : ""}</span>
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif', marginLeft: "320px" }}>Age:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.age || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Provincial Address:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.provincialAddress || ""}</span>
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif', marginLeft: "200px" }}>Contact No.:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.contactNo || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Civil Status:</span>{" "}
-                <span style={{ color: "black", marginLeft: "10px" }}>{display.civilStatus || ""}</span><br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Remarks:</span>{" "}<br />
-                <span style={{ color: "black", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Residence in this Barangay, no derogatory record</span>{" "}<br />
-                <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>This certification is being issued upon request for</span>{" "}
-                <span style={{ color: "black" }}>{display.requestReason || ""}</span>
-              </div>
-            </div>
-
-            {/* Applicant Signature */}
-            <div style={{ position: "absolute", top: "750px", left: "50px", width: "250px", textAlign: "center", fontFamily: '"Times New Roman", serif', fontSize: "12pt", fontWeight: "bold" }}>
-              <div style={{ borderTop: "1px solid #000", width: "65%", margin: "auto" }}></div>
-              <div style={{ color: "black", fontFamily: "inherit" }}>Applicant's Signature</div>
-              <div style={{ margin: "15px auto 0 auto", width: "150px", height: "75px", border: "1px solid #000" }}></div>
-            </div>
-
-            {/* Punong Barangay */}
-            <div style={{ position: "absolute", top: "900px", right: "100px", width: "300px", textAlign: "center" }}>
-              <div style={{ borderTop: "1px solid #000", width: "80%", margin: "auto" }}></div>
-              <div style={{ fontFamily: "Impact, sans-serif", fontSize: "25pt", fontWeight: "bold", background: "linear-gradient(to bottom, yellow, orange)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", WebkitTextStroke: "1px black", color: "orange" }}>
-                Arnold Dondonayos
-              </div>
-              <div style={{ fontFamily: '"Brush Script MT", cursive', fontSize: "20pt", color: "#000", marginTop: "-8px" }}>
-                Punong Barangay
-              </div>
+            <div style={{ position: "absolute", top: "760px", right: "20px", width: "300px", textAlign: "left", fontFamily: '"Times New Roman", serif', fontWeight: "bold" }}>
+               <div style={{ color: "black", fontFamily: "inherit", fontSize: "12pt" }}>Attested: </div> <br /><br />
+              <div style={{ color: "black", fontFamily: "inherit", fontSize: "16pt", fontStyle: "italic" }}>ARNOLD DONDONAYOS</div>
+               <div style={{ color: "black", fontFamily: "inherit", fontSize: "12pt", fontStyle: "italic" }}>Barangay Chairman</div>
             </div>
           </div>
         </div>
@@ -395,7 +431,7 @@ export default function BarangayClearance() {
     >
       <Box sx={{ px: 2, py: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <Typography variant="h6" sx={{ fontWeight: 800, color: '#445C3C' }}>
-          Barangay Clearance
+          Cash Assistance
         </Typography>
         <Button
           variant="outlined"
@@ -468,76 +504,68 @@ export default function BarangayClearance() {
     </Paper>
 
     {/* Form Tab */}
-    {activeTab === "form" && (
-      <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
-        <Card sx={{ borderRadius: 3, boxShadow: 1 }}>
-          <CardHeader
-            title={
-              <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600, color: 'grey.800' }}>
-                {editingId ? "Edit Record" : "New Clearance Record"}
-              </Typography>
-            }
-            subheader={
-              selectedRecord && !editingId && (
-                <Typography variant="caption" sx={{ color: 'grey.500' }}>
-                  Viewing: {selectedRecord.name}
+
+        {activeTab === "form" && (
+        <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
+            <Card sx={{ borderRadius: 3, boxShadow: 1 }}>
+            <CardHeader
+                title={
+                <Typography
+                    variant="h6"
+                    sx={{ fontSize: '1rem', fontWeight: 600, color: 'grey.800' }}
+                >
+                    Cash Assistance Form
                 </Typography>
-              )
-            }
-            sx={{ borderBottom: 1, borderColor: 'grey.200' }}
-          />
-          
-          <CardContent>
-            <Stack spacing={2}>
-              <TextField
-                label="Full Name *"
-                variant="outlined"
-                size="small"
-                fullWidth
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              />
+                }
+                subheader={
+                selectedRecord && !editingId && (
+                    <Typography variant="caption" sx={{ color: 'grey.500' }}>
+                    Viewing: {selectedRecord.name}
+                    </Typography>
+                )
+                }
+                sx={{ borderBottom: 1, borderColor: 'grey.200' }}
+            />
 
-              <TextField
-                label="Address *"
-                variant="outlined"
-                size="small"
-                fullWidth
-                multiline
-                rows={2}
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
+            <CardContent>
+                <Stack spacing={2}>
+                {/* FULL NAME */}
+                <TextField
+                    label="Full Name *"
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    sx={{
+                    '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': { borderColor: 'success.main' },
+                        '&.Mui-focused fieldset': { borderColor: 'success.main' },
                     },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              />
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'success.main' },
+                    }}
+                />
 
-              <Grid container spacing={1.5}>
-                <Grid item xs={6}>
-                  <TextField
+                {/* AGE */}
+                <TextField
+                    label="Age *"
+                    type="number"
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    value={formData.age}
+                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                    sx={{
+                    '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': { borderColor: 'success.main' },
+                        '&.Mui-focused fieldset': { borderColor: 'success.main' },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'success.main' },
+                    }}
+                />
+
+                {/* BIRTHDAY */}
+                <TextField
                     label="Birthday *"
                     type="date"
                     variant="outlined"
@@ -545,208 +573,169 @@ export default function BarangayClearance() {
                     fullWidth
                     InputLabelProps={{ shrink: true }}
                     value={formData.birthday}
-                    onChange={(e) => handleBirthdayChange(e.target.value)}
+                    onChange={(e) => setFormData({ ...formData, birthday: e.target.value })}
                     sx={{
-                      '& .MuiOutlinedInput-root': {
-                        '&:hover fieldset': {
-                          borderColor: 'success.main',
-                        },
-                        '&.Mui-focused fieldset': {
-                          borderColor: 'success.main',
-                        },
-                      },
-                      '& .MuiInputLabel-root.Mui-focused': {
-                        color: 'success.main',
-                      },
+                    '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': { borderColor: 'success.main' },
+                        '&.Mui-focused fieldset': { borderColor: 'success.main' },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'success.main' },
                     }}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <TextField
-                    label="Age"
+                />
+
+                {/* ADDRESS */}
+                <TextField
+                    label="Address *"
                     variant="outlined"
                     size="small"
                     fullWidth
-                    value={formData.age}
-                    InputProps={{ readOnly: true }}
+                    multiline
+                    rows={2}
+                    value={formData.address}
+                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                     sx={{
-                      '& .MuiOutlinedInput-root': {
-                        bgcolor: 'grey.100',
-                      },
+                    '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': { borderColor: 'success.main' },
+                        '&.Mui-focused fieldset': { borderColor: 'success.main' },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'success.main' },
                     }}
-                  />
-                </Grid>
-              </Grid>
+                />
 
-              <TextField
-                label="Provincial Address"
-                variant="outlined"
-                size="small"
-                fullWidth
-                value={formData.provincialAddress}
-                onChange={(e) => setFormData({ ...formData, provincialAddress: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              />
-
-              <TextField
-                label="Contact Number"
-                variant="outlined"
-                size="small"
-                fullWidth
-                placeholder="09XXXXXXXXX"
-                value={formData.contactNo}
-                onChange={(e) => setFormData({ ...formData, contactNo: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              />
-
-              <FormControl 
-                fullWidth 
-                size="small"
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              >
-                <InputLabel>Civil Status *</InputLabel>
-                <Select
-                  value={formData.civilStatus}
-                  label="Civil Status *"
-                  onChange={(e) => setFormData({ ...formData, civilStatus: e.target.value })}
-                >
-                  {civilStatusOptions.map((status) => (
-                    <MenuItem key={status} value={status}>
-                      {status}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-
-              <TextField
-                label="Request Reason *"
-                variant="outlined"
-                size="small"
-                fullWidth
-                multiline
-                rows={2}
-                placeholder="Job application, School enrollment, etc."
-                value={formData.requestReason}
-                onChange={(e) => setFormData({ ...formData, requestReason: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              />
-
-              <TextField
-                label="Date Issued *"
-                type="date"
-                variant="outlined"
-                size="small"
-                fullWidth
-                InputLabelProps={{ shrink: true }}
-                value={formData.dateIssued}
-                onChange={(e) => setFormData({ ...formData, dateIssued: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
-                }}
-              />
-
-              <Box sx={{ display: 'flex', gap: 1, pt: 1 }}>
-                <Button
-                  onClick={handleSubmit}
-                  variant="contained"
-                  startIcon={<SaveIcon />}
-                  fullWidth
-                  sx={{
-                    background: 'linear-gradient(45deg, #2e7d32, #388e3c)',
-                    '&:hover': {
-                      background: 'linear-gradient(45deg, #1b5e20, #2e7d32)',
-                    },
-                    fontWeight: 500,
-                    py: 1.25,
-                    textTransform: 'none'
-                  }}
-                >
-                  {editingId ? "Update" : "Save"}
-                </Button>
-                {(editingId || isFormOpen) && (
-                  <Button
-                    onClick={resetForm}
+                {/* WORK */}
+                <TextField
+                    label="Occupation / Work"
                     variant="outlined"
-                    startIcon={<CloseIcon />}
+                    size="small"
+                    fullWidth
+                    value={formData.work}
+                    onChange={(e) => setFormData({ ...formData, work: e.target.value })}
                     sx={{
-                      color: 'grey.700',
-                      borderColor: 'grey.400',
-                      '&:hover': {
-                        bgcolor: 'grey.100',
-                        borderColor: 'grey.400'
-                      },
-                      py: 1.25,
-                      px: 2,
-                      textTransform: 'none'
+                    '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': { borderColor: 'success.main' },
+                        '&.Mui-focused fieldset': { borderColor: 'success.main' },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'success.main' },
                     }}
-                  >
-                    Cancel
-                  </Button>
-                )}
-              </Box>
-            </Stack>
-          </CardContent>
-        </Card>
-      </Box>
-    )}
+                />
+
+                {/* PURPOSE */}
+                <TextField
+                    label="Purpose"
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    value={formData.purpose}
+                    onChange={(e) => setFormData({ ...formData, purpose: e.target.value })}
+                    sx={{
+                    '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': { borderColor: 'success.main' },
+                        '&.Mui-focused fieldset': { borderColor: 'success.main' },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'success.main' },
+                    }}
+                />
+
+                {/* INCOME */}
+                <TextField
+                    label="Monthly Income"
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    value={formData.income}
+                    onChange={(e) => setFormData({ ...formData, income: e.target.value })}
+                    sx={{
+                    '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': { borderColor: 'success.main' },
+                        '&.Mui-focused fieldset': { borderColor: 'success.main' },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'success.main' },
+                    }}
+                    placeholder="e.g. ₱3,000"
+                />
+
+                {/* DATE ISSUED */}
+                <TextField
+                    label="Date Issued *"
+                    type="date"
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.dateIssued}
+                    onChange={(e) => setFormData({ ...formData, dateIssued: e.target.value })}
+                    sx={{
+                    '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': { borderColor: 'success.main' },
+                        '&.Mui-focused fieldset': { borderColor: 'success.main' },
+                    },
+                    '& .MuiInputLabel-root.Mui-focused': { color: 'success.main' },
+                    }}
+                    helperText={
+                    formData.dateIssued
+                        ? (() => {
+                            const date = new Date(formData.dateIssued);
+                            const day = date.getDate();
+                            const month = date.toLocaleString('default', { month: 'short' });
+                            const year = date.getFullYear();
+                            const suffix =
+                            day % 10 === 1 && day !== 11
+                                ? 'st'
+                                : day % 10 === 2 && day !== 12
+                                ? 'nd'
+                                : day % 10 === 3 && day !== 13
+                                ? 'rd'
+                                : 'th';
+                            return `Formatted: ${day}${suffix} day of ${month}, ${year}`;
+                        })()
+                        : 'Select the date'
+                    }
+                />
+
+                {/* BUTTONS */}
+                <Box sx={{ display: 'flex', gap: 1, pt: 1 }}>
+                    <Button
+                    onClick={handleSubmit}
+                    variant="contained"
+                    startIcon={<SaveIcon />}
+                    fullWidth
+                    sx={{
+                        background: 'linear-gradient(45deg, #2e7d32, #388e3c)',
+                        '&:hover': {
+                        background: 'linear-gradient(45deg, #1b5e20, #2e7d32)',
+                        },
+                        fontWeight: 500,
+                        py: 1.25,
+                        textTransform: 'none',
+                    }}
+                    >
+                    {editingId ? 'Update' : 'Save'}
+                    </Button>
+
+                    {(editingId || isFormOpen) && (
+                    <Button
+                        onClick={resetForm}
+                        variant="outlined"
+                        startIcon={<CloseIcon />}
+                        sx={{
+                        color: 'grey.700',
+                        borderColor: 'grey.400',
+                        '&:hover': { bgcolor: 'grey.100', borderColor: 'grey.400' },
+                        py: 1.25,
+                        px: 2,
+                        textTransform: 'none',
+                        }}
+                    >
+                        Cancel
+                    </Button>
+                    )}
+                </Box>
+                </Stack>
+            </CardContent>
+            </Card>
+        </Box>
+        )}
+
 
     {/* Records Tab */}
     {activeTab === "records" && (

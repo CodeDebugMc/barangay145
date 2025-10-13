@@ -4,12 +4,17 @@ const cors = require("cors");
 const mysql = require("mysql2/promise");
 const bcrypt = require("bcryptjs");
 
+
+
 const app = express();
 const PORT = 5000;
 
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json())
+
+
+
 
 // Authentication middleware
 const authenticateUser = async (req, res, next) => {
@@ -85,6 +90,129 @@ const pool = mysql.createPool({
 app.get("/", (req, res) => {
   res.json({ message: "Welcome to Barangay 145 API 🚀" });
 });
+
+
+/**
+ * INDIGENCY CRUD
+ */
+
+// GET all active indigency records
+app.get("/indigency", async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT 
+         indigency_id, resident_id, full_name, address, provincial_address, dob, age, civil_status, contact_no, request_reason, remarks, date_issued, date_created, date_updated, is_active
+       FROM indigency
+       WHERE is_active = TRUE
+       ORDER BY indigency_id DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch indigency records" });
+  }
+});
+
+// GET single record by ID
+app.get("/indigency/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query(
+      `SELECT 
+         indigency_id, resident_id, full_name, address, provincial_address, dob, age, civil_status, contact_no, request_reason, remarks, date_issued, date_created, date_updated, is_active
+       FROM indigency
+       WHERE indigency_id = ?`,
+      [id]
+    );
+
+    if (rows.length === 0) return res.status(404).json({ error: "Record not found" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch record" });
+  }
+});
+
+// CREATE new record
+app.post("/indigency", async (req, res) => {
+  try {
+    const { resident_id, full_name, address, provincial_address, dob, age, civil_status, contact_no, request_reason, remarks, date_issued } = req.body;
+
+    // Basic validation
+    if (!resident_id || !full_name || !address || !dob || !Number.isFinite(Number(age)) || !civil_status || !request_reason || !date_issued) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    // Insert record
+    const [result] = await pool.query(
+      `INSERT INTO indigency 
+        (resident_id, full_name, address, provincial_address, dob, age, civil_status, contact_no, request_reason, remarks, date_issued)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [resident_id, full_name, address, provincial_address || null, dob, Number(age), civil_status, contact_no || null, request_reason, remarks || null, date_issued]
+    );
+
+    // Fetch newly created record
+    const [rows] = await pool.query(`SELECT * FROM indigency WHERE indigency_id = ?`, [result.insertId]);
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to create record" });
+  }
+});
+
+// UPDATE existing record
+app.put("/indigency/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { resident_id, full_name, address, provincial_address, dob, age, civil_status, contact_no, request_reason, remarks, date_issued } = req.body;
+
+    if (!full_name || !address || !dob || !Number.isFinite(Number(age)) || !civil_status || !request_reason || !date_issued) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const [result] = await pool.query(
+      `UPDATE indigency
+       SET resident_id = ?, full_name = ?, address = ?, provincial_address = ?, dob = ?, age = ?, civil_status = ?, contact_no = ?, request_reason = ?, remarks = ?, date_issued = ?, date_updated = NOW()
+       WHERE indigency_id = ?`,
+      [resident_id, full_name, address, provincial_address, dob, Number(age), civil_status, contact_no, request_reason, remarks, date_issued, id]
+    );
+
+    if (result.affectedRows === 0) return res.status(404).json({ error: "Record not found" });
+
+    res.json({ message: "Record updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update record" });
+  }
+});
+
+
+// DELETE indigency record
+app.delete("/indigency/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const [result] = await pool.query(
+      `UPDATE indigency
+       SET is_active = FALSE, date_updated = NOW()
+       WHERE indigency_id = ?`,
+      [id]
+    );
+
+    if (result.affectedRows === 0) return res.status(404).json({ error: "Record not found" });
+
+    res.json({ message: "Record deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete record" });
+  }
+});
+
+
+
+
+
+
 
 /**
  * REQUEST RECORDS (Barangay Clearance/Indigency UI CRUD)
@@ -191,18 +319,95 @@ app.get("/residents", async (req, res) => {
 app.post("/residents", async (req, res) => {
   const { full_name, address, provincial_address, dob, age, civil_status, contact_no } = req.body;
   try {
+    // 🔍 Check if a resident with the same name and birthday already exists
+    const [existing] = await pool.query(
+      "SELECT * FROM residents WHERE LOWER(full_name) = LOWER(?) AND dob = ?",
+      [full_name, dob]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "Resident already exists (same name and date of birth)" });
+    }
+    // ✅ Insert if no duplicate found
     const [result] = await pool.query(
       `INSERT INTO residents 
         (full_name, address, provincial_address, dob, age, civil_status, contact_no) 
        VALUES (?,?,?,?,?,?,?)`,
       [full_name, address, provincial_address, dob, age, civil_status, contact_no]
     );
-    res.json({ message: "Resident added", resident_id: result.insertId });
+
+    res.json({ message: "Resident added successfully", resident_id: result.insertId });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to add resident" });
   }
 });
+
+// Update resident
+app.put("/residents/:id", async (req, res) => {
+  const { id } = req.params;
+  const { full_name, address, provincial_address, dob, age, civil_status, contact_no } = req.body;
+
+  try {
+    const [existing] = await pool.query(
+      "SELECT * FROM residents WHERE LOWER(full_name) = LOWER(?) AND dob = ? AND resident_id != ?",
+      [full_name, dob, id]
+    );
+
+    if (existing.length > 0) {
+      return res.status(400).json({ error: "Another resident with same name and date of birth already exists" });
+    }
+    await pool.query(
+      `UPDATE residents 
+       SET full_name = ?, address = ?, provincial_address = ?, dob = ?, 
+           age = ?, civil_status = ?, contact_no = ?
+       WHERE resident_id = ?`,
+      [full_name, address, provincial_address, dob, age, civil_status, contact_no, id]
+    );
+
+    res.json({ message: "Resident updated successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to update resident" });
+  }
+});
+
+// Delete resident
+
+app.delete("/residents/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await pool.query("DELETE FROM residents WHERE resident_id = ?", [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Resident not found" });
+    }
+
+    res.json({ message: "Resident deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to delete resident" });
+  }
+});
+
+
+
+// GET all residents for dropdown
+app.get("/residents", async (req, res) => {
+  try {
+    const [rows] = await db.execute(
+      "SELECT id, full_name, address, provincial_address, dob, age, civil_status, contact_no FROM residents WHERE is_active = 1"
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
+
+
 
 /**
  * CERTIFICATES

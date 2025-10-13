@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from "react";
 import CaloocanLogo from "../assets/CaloocanLogo.png";
 import Logo145 from "../assets/Logo145.png";
 import BagongPilipinas from "../assets/BagongPilipinas.png";
+import { Autocomplete } from "@mui/material";
+
 
 // Import Material UI components at the top of your file
 import {
@@ -44,59 +46,80 @@ export default function Indigency() {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
   const [searchTerm, setSearchTerm] = useState("");
+  const [residents, setResidents] = useState([]);
+
 
   const [formData, setFormData] = useState({
-    name: "",
+    resident_id: "",
+    full_name: "",
     address: "",
-    birthday: "",
+    dob: "",
     age: "",
-    provincialAddress: "",
-    contactNo: "",
-    civilStatus: "Single",
-    requestReason: "",
-    dateIssued: new Date().toISOString().split("T")[0],
+    provincial_address: "",
+    contact_no: "",
+    civil_status: "Single",
+    remarks: "Residence in this Barangay and certifies that he/she belongs to indigent families.",
+    request_reason: "",
+    date_issued: new Date().toISOString().split("T")[0],
   });
 
   const civilStatusOptions = ["Single", "Married", "Widowed", "Divorced", "Separated"];
 
-  useEffect(() => {
-    loadRecords();
-  }, []);
+  
+
+async function loadResidents() {
+  try {
+    const res = await fetch(`${apiBase}/residents`);
+    const data = await res.json();
+    setResidents(data);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+useEffect(() => {
+  loadResidents();
+  loadRecords();
+}, []);
+
 
   async function loadRecords() {
     try {
-      const res = await fetch(`${apiBase}/request-records`);
+      const res = await fetch(`${apiBase}/indigency`);
       const data = await res.json();
-      setRecords(
-        Array.isArray(data)
-          ? data.map((r) => ({
-              id: r.id,
-              name: r.name,
-              address: r.address,
-              birthday: r.birthday?.slice(0, 10) || "",
-              age: String(r.age ?? ""),
-              provincialAddress: r.provincial_address || "",
-              contactNo: r.contact_no || "",
-              civilStatus: r.civil_status,
-              requestReason: r.request_reason,
-              dateIssued: r.date_issued?.slice(0, 10) || "",
-              dateCreated: r.date_created,
-            }))
-          : []
-      );
+     setRecords(
+          Array.isArray(data)
+            ? data.map((r) => ({
+                indigency_id: r.indigency_id,
+                resident_id: r.resident_id,
+                full_name: r.full_name,
+                address: r.address,
+                dob: r.dob?.slice(0, 10) || "",
+                age: String(r.age ?? ""),
+                provincial_address: r.provincial_address || "",
+                contact_no: r.contact_no || "",
+                civil_status: r.civil_status,
+                remarks: r.remarks,
+                request_reason: r.request_reason,
+                date_issued: r.date_issued || "",
+                date_created: r.date_created,
+              }))
+            : []
+        );
+
     } catch (e) {
       console.error(e);
     }
   }
 
-  function handleBirthdayChange(birthday) {
-    if (birthday) {
-      const birthDate = new Date(birthday);
+  function handleBirthdayChange(dob) {
+    if (dob) {
+      const birthDate = new Date(dob);
       const today = new Date();
       const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
-      setFormData({ ...formData, birthday, age: String(age) });
+      setFormData({ ...formData, dob, age: String(age) });
     } else {
-      setFormData({ ...formData, birthday: "", age: "" });
+      setFormData({ ...formData, dob: "", age: "" });
     }
   }
 
@@ -106,30 +129,34 @@ export default function Indigency() {
     return formData;
   }, [editingId, isFormOpen, selectedRecord, formData]);
 
-  function toServerPayload(data) {
-    return {
-      name: data.name,
-      address: data.address,
-      birthday: data.birthday || null,
-      age: data.age ? Number(data.age) : null,
-      provincial_address: data.provincialAddress || null,
-      contact_no: data.contactNo || null,
-      civil_status: data.civilStatus,
-      request_reason: data.requestReason,
-      date_issued: data.dateIssued,
-    };
-  }
+    function toServerPayload(data) {
+      return {
+        resident_id: data.resident_id || null,
+        full_name: data.full_name,
+        address: data.address,
+        dob: data.dob || null,
+        age: data.age ? Number(data.age) : null,
+        provincial_address: data.provincial_address || null,
+        contact_no: data.contact_no || null,
+        civil_status: data.civil_status,
+        remarks: data.remarks,
+        request_reason: data.request_reason,
+        date_issued: data.date_issued,
+      };
+    }
+
 
   async function handleCreate() {
     try {
-      const res = await fetch(`${apiBase}/request-records`, {
+      const res = await fetch(`${apiBase}/indigency`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toServerPayload(formData)),
       });
       if (!res.ok) throw new Error("Create failed");
       const created = await res.json();
-      const newRec = { ...formData, id: created.id };
+      const newRec = { ...formData, indigency_id: created.indigency_id };
+
       setRecords([newRec, ...records]);
       setSelectedRecord(newRec);
       resetForm();
@@ -142,14 +169,14 @@ export default function Indigency() {
 
   async function handleUpdate() {
     try {
-      const res = await fetch(`${apiBase}/request-records/${editingId}`, {
+      const res = await fetch(`${apiBase}/indigency/${editingId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toServerPayload(formData)),
       });
       if (!res.ok) throw new Error("Update failed");
-      const updated = { ...formData, id: editingId };
-      setRecords(records.map((r) => (r.id === editingId ? updated : r)));
+      const updated = { ...formData, indigency_id: editingId };
+      setRecords(records.map((r) => (r.indigency_id === editingId ? updated : r)));
       setSelectedRecord(updated);
       resetForm();
       setActiveTab("records");
@@ -160,24 +187,25 @@ export default function Indigency() {
   }
 
   function handleEdit(record) {
-    setFormData({ ...record });
-    setEditingId(record.id);
-    setIsFormOpen(true);
-    setActiveTab("form");
-  }
+  setFormData({ ...record }); // record already has indigency_id
+  setEditingId(record.indigency_id);
+  setIsFormOpen(true);
+  setActiveTab("form");
+}
+
 
   async function handleDelete(id) {
-    if (!window.confirm("Delete this record?")) return;
-    try {
-      const res = await fetch(`${apiBase}/request-records/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Delete failed");
-      setRecords(records.filter((r) => r.id !== id));
-      if (selectedRecord?.id === id) setSelectedRecord(null);
-    } catch (e) {
-      console.error(e);
-      alert("Failed to delete record");
-    }
+  if (!window.confirm("Delete this record?")) return;
+  try {
+    const res = await fetch(`${apiBase}/indigency/${id}`, { method: "DELETE" });
+    if (!res.ok) throw new Error("Delete failed");
+    setRecords(records.filter((r) => r.indigency_id !== id));
+    if (selectedRecord?.indigency_id === id) setSelectedRecord(null);
+  } catch (e) {
+    console.error(e);
+    alert("Failed to delete record");
   }
+}
 
   function handleView(record) {
     setSelectedRecord(record);
@@ -186,15 +214,16 @@ export default function Indigency() {
 
   function resetForm() {
     setFormData({
-      name: "",
+      full_name: "",
       address: "",
-      birthday: "",
+      dob: "",
       age: "",
-      provincialAddress: "",
-      contactNo: "",
-      civilStatus: "Single",
-      requestReason: "",
-      dateIssued: new Date().toISOString().split("T")[0],
+      provincial_address: "",
+      contact_no: "",
+      civil_status: "Single",
+      remarks: "Residence in this Barangay and certifies that he/she belongs to indigent families. ",
+      request_reason: "",
+      date_issued: new Date().toISOString().split("T")[0],
     });
     setEditingId(null);
     setIsFormOpen(false);
@@ -208,11 +237,11 @@ export default function Indigency() {
   const filteredRecords = useMemo(
     () =>
       records.filter(
-        (r) =>
-          r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          r.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (r.contactNo || "").includes(searchTerm)
-      ),
+  (r) =>
+    r.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    r.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (r.contact_no || "").includes(searchTerm)
+    ),
     [records, searchTerm]
   );
 
@@ -408,7 +437,7 @@ export default function Indigency() {
                    color: "red",
                  }}
                >
-                 Date: {display.dateIssued ? formatDate(display.dateIssued) : ""}
+                 Date: {display.date_issued ? formatDate(display.date_issued) : ""}
                </div>
        
                {/* Body */}
@@ -447,29 +476,31 @@ export default function Indigency() {
                  }}
                >
                  <div>
+                  
                    <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Name:</span>{" "}
-                                  <span style={{ color: "black", marginLeft: "10px" }}>{display.name || ""}</span><br />
+                                  <span style={{ color: "black", marginLeft: "10px" }}>{display.full_name || ""}</span><br />
                    <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif' }}>Address:</span>{" "}
                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.address || ""}</span><br />
                    <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>Birthday:</span>{" "}
-                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.birthday ? formatDate(display.birthday) : ""}</span>
+                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.dob ? formatDate(display.dob) : ""}</span>
                    <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif',  marginLeft: "320px" }}>Age:</span>{" "}
                                    <span style={{ color: "black", marginLeft: "10px" }}>{display.age || ""}</span><br />
                    <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>Provincial Address:</span>{" "}
-                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.provincialAddress || ""}</span>
+                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.provincial_address || ""}</span>
                    <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif',  marginLeft: "200px" }}>Contact No.:</span>{" "}
-                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.contactNo || ""}</span><br />
+                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.contact_no || ""}</span><br />
                    <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>Civil Status:</span>{" "}
-                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.civilStatus || ""}</span><br />
+                                   <span style={{ color: "black", marginLeft: "10px" }}>{display.civil_status || ""}</span><br />
 
                    <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>Remarks:</span>{" "}
                    <span style={{ color: "black", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>
-                     Residence in this Barangay and certifies that he/she belongs to<br /> indigent families.
+                     {display.remarks || ""}
                    </span>{" "}<br />
                    <span style={{ color: "red", fontWeight: "bold", fontFamily: '"Times New Roman", serif'  }}>
                      This certification is being issued upon request for</span>{" "}
-                                   <span style={{ color: "black" }}>{display.requestReason || ""}</span>
+                                   <span style={{ color: "black" }}>{display.request_reason || ""}</span>
 
+                  
                  </div>
                </div>
        
@@ -646,13 +677,13 @@ export default function Indigency() {
           <CardHeader
             title={
               <Typography variant="h6" sx={{ fontSize: '1rem', fontWeight: 600, color: 'grey.800' }}>
-                {editingId ? "Edit Record" : "New Clearance Record"}
+                {editingId ? "Edit Record" : "New Indigency Record"}
               </Typography>
             }
             subheader={
               selectedRecord && !editingId && (
                 <Typography variant="caption" sx={{ color: 'grey.500' }}>
-                  Viewing: {selectedRecord.name}
+                  Viewing: {selectedRecord.full_name}
                 </Typography>
               )
             }
@@ -661,28 +692,51 @@ export default function Indigency() {
           
           <CardContent>
             <Stack spacing={2}>
-              <TextField
-                label="Full Name *"
-                variant="outlined"
-                size="small"
-                fullWidth
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                sx={{
-                  '& .MuiOutlinedInput-root': {
-                    '&:hover fieldset': {
-                      borderColor: 'success.main',
-                    },
-                    '&.Mui-focused fieldset': {
-                      borderColor: 'success.main',
-                    },
-                  },
-                  '& .MuiInputLabel-root.Mui-focused': {
-                    color: 'success.main',
-                  },
+
+              <Autocomplete
+                options={residents}
+                getOptionLabel={(option) => option.full_name}
+                value={residents.find(r => r.full_name === formData.full_name) || null}
+                onChange={(event, newValue) => {
+                  if (newValue) {
+                    // Auto-fill form fields from selected resident
+                    setFormData({
+                      ...formData,
+                      resident_id: newValue.resident_id,
+                      full_name: newValue.full_name,
+                      address: newValue.address || "",
+                      provincial_address: newValue.provincial_address || "",
+                      dob: newValue.dob?.slice(0, 10) || "",
+                      age: newValue.age ? String(newValue.age) : "",
+                      civil_status: newValue.civil_status || "Single",
+                      contact_no: newValue.contact_no || "",
+                    });
+                  } else {
+                    setFormData({ ...formData, full_name: "" });
+                  }
                 }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Full Name *"
+                    variant="outlined"
+                    size="small"
+                    fullWidth
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        '&:hover fieldset': { borderColor: 'success.main' },
+                        '&.Mui-focused fieldset': { borderColor: 'success.main' },
+                      },
+                      '& .MuiInputLabel-root.Mui-focused': { color: 'success.main' },
+                    }}
+                  />
+                )}
               />
 
+
+              
+                            
+               
               <TextField
                 label="Address *"
                 variant="outlined"
@@ -716,7 +770,7 @@ export default function Indigency() {
                     size="small"
                     fullWidth
                     InputLabelProps={{ shrink: true }}
-                    value={formData.birthday}
+                    value={formData.dob}
                     onChange={(e) => handleBirthdayChange(e.target.value)}
                     sx={{
                       '& .MuiOutlinedInput-root': {
@@ -755,8 +809,8 @@ export default function Indigency() {
                 variant="outlined"
                 size="small"
                 fullWidth
-                value={formData.provincialAddress}
-                onChange={(e) => setFormData({ ...formData, provincialAddress: e.target.value })}
+                value={formData.provincial_address}
+                onChange={(e) => setFormData({ ...formData, provincial_address: e.target.value })}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&:hover fieldset': {
@@ -778,8 +832,8 @@ export default function Indigency() {
                 size="small"
                 fullWidth
                 placeholder="09XXXXXXXXX"
-                value={formData.contactNo}
-                onChange={(e) => setFormData({ ...formData, contactNo: e.target.value })}
+                value={formData.contact_no}
+                onChange={(e) => setFormData({ ...formData, contact_no: e.target.value })}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&:hover fieldset': {
@@ -814,9 +868,9 @@ export default function Indigency() {
               >
                 <InputLabel>Civil Status *</InputLabel>
                 <Select
-                  value={formData.civilStatus}
+                  value={formData.civil_status}
                   label="Civil Status *"
-                  onChange={(e) => setFormData({ ...formData, civilStatus: e.target.value })}
+                  onChange={(e) => setFormData({ ...formData, civil_status: e.target.value })}
                 >
                   {civilStatusOptions.map((status) => (
                     <MenuItem key={status} value={status}>
@@ -826,6 +880,33 @@ export default function Indigency() {
                 </Select>
               </FormControl>
 
+               <TextField
+                label="Remarks *"
+                variant="outlined"
+                size="small"
+                fullWidth
+                multiline
+                rows={2}
+                
+                value={formData.remarks}
+                onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+                sx={{
+                  '& .MuiOutlinedInput-root': {
+                    '&:hover fieldset': {
+                      borderColor: 'success.main',
+                    },
+                    '&.Mui-focused fieldset': {
+                      borderColor: 'success.main',
+                    },
+                  },
+                  '& .MuiInputLabel-root.Mui-focused': {
+                    color: 'success.main',
+                  },
+                }}
+              />
+
+
+
               <TextField
                 label="Request Reason *"
                 variant="outlined"
@@ -834,8 +915,8 @@ export default function Indigency() {
                 multiline
                 rows={2}
                 placeholder="Job application, School enrollment, etc."
-                value={formData.requestReason}
-                onChange={(e) => setFormData({ ...formData, requestReason: e.target.value })}
+                value={formData.request_reason}
+                onChange={(e) => setFormData({ ...formData, request_reason: e.target.value })}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&:hover fieldset': {
@@ -858,8 +939,8 @@ export default function Indigency() {
                 size="small"
                 fullWidth
                 InputLabelProps={{ shrink: true }}
-                value={formData.dateIssued}
-                onChange={(e) => setFormData({ ...formData, dateIssued: e.target.value })}
+                value={formData.date_issued}
+                onChange={(e) => setFormData({ ...formData, date_issued: e.target.value })}
                 sx={{
                   '& .MuiOutlinedInput-root': {
                     '&:hover fieldset': {
@@ -961,7 +1042,7 @@ export default function Indigency() {
             <Stack spacing={1}>
               {filteredRecords.map((record) => (
                 <Card 
-                  key={record.id} 
+                  key={record.indigency_id} 
                   sx={{ 
                     boxShadow: 1, 
                     '&:hover': { 
@@ -974,14 +1055,14 @@ export default function Indigency() {
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <Box sx={{ flex: 1 }}>
                         <Typography variant="body2" sx={{ fontWeight: 600, color: 'grey.900', mb: 0.5 }}>
-                          {record.name}
+                          {record.full_name}
                         </Typography>
                         <Typography variant="caption" sx={{ color: 'grey.600', display: 'block', mb: 0.5 }}>
                           {record.address}
                         </Typography>
                         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, alignItems: 'center' }}>
                           <Chip 
-                            label={record.civilStatus} 
+                            label={record.civil_status} 
                             size="small" 
                             sx={{ 
                               bgcolor: 'grey.100', 
@@ -992,11 +1073,11 @@ export default function Indigency() {
                           />
                           {record.contactNo && (
                             <Typography variant="caption" sx={{ color: 'grey.500', fontSize: '0.625rem' }}>
-                              {record.contactNo}
+                              {record.contact_no}
                             </Typography>
                           )}
                           <Typography variant="caption" sx={{ color: 'grey.400', fontSize: '0.625rem' }}>
-                            Issued: {formatDate(record.dateIssued)}
+                            Issued: {formatDate(record.date_issued)}
                           </Typography>
                         </Box>
                       </Box>
@@ -1027,7 +1108,7 @@ export default function Indigency() {
                         </IconButton>
                         <IconButton 
                           size="small" 
-                          onClick={() => handleDelete(record.id)}
+                          onClick={() => handleDelete(record.indigency_id)}
                           sx={{ 
                             color: 'error.main', 
                             '&:hover': { bgcolor: 'error.lighter' },

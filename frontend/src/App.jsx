@@ -54,6 +54,14 @@ import BarangayClearanceCRUD from './components/BarangayClearanceCRUD';
 import BusinessClearance from './components/BusinessClearance';
 import CertificateOfResidency from './components/CertificateOfResidency';
 import PermitToTravel from './components/PermitToTravel';
+import CashAssistance from './components/CashAssistance';
+import Cohabitation from './components/Cohabitation';
+import FinancialAssistance from './components/FinancialAssistance';
+import BhertCertPositive from './components/BhertCertPositive';
+import Resident from './components/Resident';
+import Reports from './components/Reports';
+
+
 
 import { useNavigate } from 'react-router-dom';
 
@@ -391,10 +399,21 @@ function AppContent() {
           <Route 
             path="/residents" 
             element={
-            <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>                
+            <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>   
+            <Resident />            
               </ProtectedRoute>
             } 
           />
+
+          <Route 
+            path="/reports" 
+            element={
+            <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>   
+            <Reports />            
+              </ProtectedRoute>
+            } 
+          />
+
           <Route 
             path="/certificates" 
             element={
@@ -479,6 +498,42 @@ function AppContent() {
             element={
                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
                 <PermitToTravel />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/cash-assistance" 
+            element={
+               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                <CashAssistance />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/cohabitation" 
+            element={
+               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                <Cohabitation />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/financial-assistance" 
+            element={
+               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                <FinancialAssistance />
+              </ProtectedRoute>
+            } 
+          />
+
+          <Route 
+            path="/bhert-cert-positive" 
+            element={
+               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                <BhertCertPositive />
               </ProtectedRoute>
             } 
           />
