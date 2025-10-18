@@ -48,7 +48,9 @@ import CaloocanLogo from './assets/CaloocanLogo.png';
 import Logo145 from './assets/Logo145.png';
 import BarangayClearance from './components/RequestForms/BarangayClearance';
 import Sidebar from './components/Sidebar';
-import OathJobSeeker from './components/RequestForms/OathJobSeeker';
+import OathJobSeeker, {
+  OathJobVerification,
+} from './components/RequestForms/OathJobSeeker';
 import SoloParentForm from './components/RequestForms/SoloParentForm';
 import BarangayClearanceCRUD from './components/RequestForms/BarangayClearanceCRUD';
 import BusinessClearance from './components/RequestForms/BusinessClearance';
@@ -624,6 +626,11 @@ function AppContent() {
                   <UserManagement />
                 </ProtectedRoute>
               }
+            />
+
+            <Route
+              path="/verify-oath-job-seeker"
+              element={<OathJobVerification />}
             />
           </Routes>
         </Box>
