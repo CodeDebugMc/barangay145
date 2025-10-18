@@ -488,7 +488,7 @@ app.get('/verify/business-clearance/:id', async (req, res) => {
     const serverHash = generateDocumentHash({
       ...certificate,
       indigency_id: certificate.business_clearance_id,
-      type: 'business_clearance'
+      type: 'business_clearance',
     });
 
     if (hash && hash !== serverHash) {
@@ -540,7 +540,7 @@ app.get('/api/business-clearance/:id/hash', async (req, res) => {
     const hash = generateDocumentHash({
       ...rows[0],
       indigency_id: rows[0].business_clearance_id,
-      type: 'business_clearance'
+      type: 'business_clearance',
     });
     res.json({
       hash,
@@ -1521,7 +1521,9 @@ app.get('/business-clearance', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch business clearance records' });
+    res
+      .status(500)
+      .json({ error: 'Failed to fetch business clearance records' });
   }
 });
 
@@ -1739,7 +1741,9 @@ app.get('/certificate-of-residency', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch certificate of residency records' });
+    res
+      .status(500)
+      .json({ error: 'Failed to fetch certificate of residency records' });
   }
 });
 
@@ -2228,7 +2232,9 @@ app.get('/financial-assistance', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch financial assistance records' });
+    res
+      .status(500)
+      .json({ error: 'Failed to fetch financial assistance records' });
   }
 });
 
@@ -2545,162 +2551,116 @@ app.delete('/cohabitation/:id', async (req, res) => {
  * OATH JOB SEEKER CRUD
  */
 
-// GET all active oath job seeker records
-app.get('/oath-job-seeker', async (req, res) => {
+// GET /oath-job - Get all oath_job records
+app.get('/oath-job', async (req, res) => {
   try {
     const [rows] = await pool.query(
-      `SELECT * FROM oath_job_seeker WHERE is_active = TRUE ORDER BY oath_job_seeker_id DESC`
+      'SELECT * FROM oath_job ORDER BY date_created DESC'
     );
     res.json(rows);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch oath job seeker records' });
+    console.error('Error fetching oath_job records:', err);
+    res
+      .status(500)
+      .json({ message: 'Error fetching records', error: err.message });
   }
 });
 
-// GET single oath job seeker by ID
-app.get('/oath-job-seeker/:id', async (req, res) => {
+// GET /oath-job/:id - Get a single oath_job record by ID
+app.get('/oath-job/:id', async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    const [rows] = await pool.query(
-      `SELECT * FROM oath_job_seeker WHERE oath_job_seeker_id = ?`,
-      [id]
-    );
-    if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+    const [rows] = await pool.query('SELECT * FROM oath_job WHERE id = ?', [
+      id,
+    ]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Record not found' });
+    }
     res.json(rows[0]);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    console.error('Error fetching oath_job record:', err);
+    res
+      .status(500)
+      .json({ message: 'Error fetching record', error: err.message });
   }
 });
 
-// CREATE new oath job seeker
-app.post('/oath-job-seeker', async (req, res) => {
-  try {
-    const {
-      resident_id,
-      full_name,
-      address,
-      provincial_address,
-      dob,
-      age,
-      civil_status,
-      contact_no,
-      request_reason,
-      remarks,
-      date_issued,
-      transaction_number,
-    } = req.body;
+// POST /oath-job - Create a new oath_job record
+app.post('/oath-job', async (req, res) => {
+  const { resident_id, full_name, age, address, date_issued } = req.body;
 
-    if (!full_name || !address || !request_reason || !date_issued) {
-      return res.status(400).json({ error: 'Missing required fields' });
+  // Basic validation
+  if (!full_name) {
+    return res.status(400).json({ message: 'Full name is required.' });
+  }
+
+  const transaction_number = generateTransactionNumber();
+
+  try {
+    const [result] = await pool.query(
+      'INSERT INTO oath_job (resident_id, transaction_number, full_name, age, address, date_issued) VALUES (?, ?, ?, ?, ?, ?)',
+      [resident_id, transaction_number, full_name, age, address, date_issued]
+    );
+    res.status(201).json({
+      message: 'Record created successfully',
+      id: result.insertId,
+      transaction_number: transaction_number,
+      ...req.body, // Return the submitted data
+    });
+  } catch (err) {
+    console.error('Error creating oath_job record:', err);
+    res
+      .status(500)
+      .json({ message: 'Error creating record', error: err.message });
+  }
+});
+
+// PUT /oath-job/:id - Update an existing oath_job record
+app.put('/oath-job/:id', async (req, res) => {
+  const { id } = req.params;
+  const { resident_id, full_name, age, address, date_issued } = req.body;
+
+  // Basic validation
+  if (!full_name) {
+    return res.status(400).json({ message: 'Full name is required.' });
+  }
+
+  try {
+    const [result] = await pool.query(
+      'UPDATE oath_job SET resident_id = ?, full_name = ?, age = ?, address = ?, date_issued = ? WHERE id = ?',
+      [resident_id, full_name, age, address, date_issued, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res
+        .status(404)
+        .json({ message: 'Record not found or no changes made.' });
     }
-
-    const finalTransactionNumber =
-      transaction_number || generateTransactionNumberForType('OJS');
-
-    const [result] = await pool.query(
-      `INSERT INTO oath_job_seeker 
-        (resident_id, full_name, address, provincial_address, dob, age, civil_status, contact_no, request_reason, remarks, date_issued, transaction_number)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        resident_id,
-        full_name,
-        address,
-        provincial_address,
-        dob,
-        age,
-        civil_status,
-        contact_no,
-        request_reason,
-        remarks,
-        date_issued,
-        finalTransactionNumber,
-      ]
-    );
-
-    const [rows] = await pool.query(
-      `SELECT * FROM oath_job_seeker WHERE oath_job_seeker_id = ?`,
-      [result.insertId]
-    );
-
-    res.status(201).json(rows[0]);
+    res.json({ message: 'Record updated successfully', id: id, ...req.body });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    console.error('Error updating oath_job record:', err);
+    res
+      .status(500)
+      .json({ message: 'Error updating record', error: err.message });
   }
 });
 
-// UPDATE existing oath job seeker
-app.put('/oath-job-seeker/:id', async (req, res) => {
+// DELETE /oath-job/:id - Delete an oath_job record
+app.delete('/oath-job/:id', async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    const {
-      resident_id,
-      full_name,
-      address,
-      provincial_address,
-      dob,
-      age,
-      civil_status,
-      contact_no,
-      request_reason,
-      remarks,
-      date_issued,
-      transaction_number,
-    } = req.body;
-
-    const [result] = await pool.query(
-      `UPDATE oath_job_seeker
-       SET resident_id=?, full_name=?, address=?, provincial_address=?, dob=?, age=?, civil_status=?, contact_no=?, request_reason=?, remarks=?, date_issued=?, transaction_number=?, date_updated=NOW()
-       WHERE oath_job_seeker_id=?`,
-      [
-        resident_id,
-        full_name,
-        address,
-        provincial_address,
-        dob,
-        age,
-        civil_status,
-        contact_no,
-        request_reason,
-        remarks,
-        date_issued,
-        transaction_number,
-        id,
-      ]
-    );
-
-    if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-
-    const [updated] = await pool.query(
-      `SELECT * FROM oath_job_seeker WHERE oath_job_seeker_id = ?`,
-      [id]
-    );
-
-    res.json(updated[0]);
+    const [result] = await pool.query('DELETE FROM oath_job WHERE id = ?', [
+      id,
+    ]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: 'Record not found' });
+    }
+    res.json({ message: 'Record deleted successfully', id: id });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
-  }
-});
-
-// DELETE oath job seeker (soft delete)
-app.delete('/oath-job-seeker/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const [result] = await pool.query(
-      `UPDATE oath_job_seeker SET is_active = FALSE, date_updated = NOW() WHERE oath_job_seeker_id = ?`,
-      [id]
-    );
-    if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    console.error('Error deleting oath_job record:', err);
+    res
+      .status(500)
+      .json({ message: 'Error deleting record', error: err.message });
   }
 });
 
@@ -2880,7 +2840,9 @@ app.get('/certification-action', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch certification action records' });
+    res
+      .status(500)
+      .json({ error: 'Failed to fetch certification action records' });
   }
 });
 
@@ -3043,7 +3005,9 @@ app.get('/bhert-cert-positive', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch bhert cert positive records' });
+    res
+      .status(500)
+      .json({ error: 'Failed to fetch bhert cert positive records' });
   }
 });
 
