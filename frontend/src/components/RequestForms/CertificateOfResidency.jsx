@@ -457,25 +457,20 @@ export default function CertificateOfResidency() {
           window.location.origin
         }/verify-certificate?id=${display.certificate_of_residency_id || 'draft'}`;
 
-        const qrContent = `𝗖𝗘𝗥𝗧𝗜𝗙𝗜𝗖𝗔𝗧𝗘 𝗩𝗘𝗥𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡:
+         const qrContent = `CERTIFICATE VERIFICATION:
         𝗧𝗿𝗮𝗻𝘀𝗮𝗰𝘁𝗶𝗼𝗻 𝗡𝗼: ${display.transaction_number || 'N/A'}
-        𝗡𝗮𝗺𝗲: ${display.full_name}
-        𝗗𝗮𝘁𝗲 𝗜𝘀𝘀𝘂𝗲𝗱: ${
-          display.date_created
-            ? formatDateTimeDisplay(display.date_created)
-            : new Date().toLocaleString()
+        Name: ${display.full_name}
+        Date Issued: ${
+        display.date_created
+        ? formatDateTimeDisplay(display.date_created)
+        : new Date().toLocaleString()
         }
-        𝗗𝗼𝗰𝘂𝗺𝗲𝗻𝘁 𝗧𝘆𝗽𝗲: Certificate of Residency
-        𝗩𝗘𝗥𝗜𝗙𝗜𝗖𝗔𝗧𝗜𝗢𝗡 𝗡𝗢𝗧𝗜𝗖𝗘:
-        This information is for verification 
-        purposes to avoid tampering the data
-        and forging the document.
-
-
-        Ⓒ 𝗥𝗥𝗠𝗦 | 𝗕𝗔𝗥𝗔𝗡𝗚𝗔𝗬 𝟭𝟰𝟱
-        𝗖𝗔𝗟𝗢𝗢𝗖𝗔𝗡 𝗖𝗜𝗧𝗬
-        𝗔𝗟𝗟 𝗥𝗜𝗚𝗛𝗧𝗦 𝗥𝗘𝗦𝗘𝗥𝗩𝗘𝗗
- `;
+        Document Type: Certificate of Residency
+       
+        Ⓒ RRMS | BARANGAY 145
+        CALOOCAN CITY
+        ALL RIGHTS RESERVED
+        `;
 
         try {
           const qrUrl = await QRCode.toDataURL(qrContent, {
