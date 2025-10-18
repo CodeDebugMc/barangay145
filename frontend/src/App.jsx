@@ -31,40 +31,38 @@ import {
   Close as CloseIcon,
   ExpandMore as ExpandMoreIcon,
   ExpandLess as ExpandLessIcon,
-  HomeFilled
+  HomeFilled,
 } from '@mui/icons-material';
 import axios from 'axios';
 
 // Import existing components
 import Login from './components/Login';
 import Footer from './components/Footer';
-import Indigency from './components/Indigency';
-import CertificationAction from './components/CertificationAction';
+import Indigency from './components/RequestForms/Indigency';
+import CertificationAction from './components/RequestForms/CertificationAction';
 import Home from './components/Home';
 import UserManagement from './components/UserManagement';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import CaloocanLogo from './assets/CaloocanLogo.png';
 import Logo145 from './assets/Logo145.png';
-import BarangayClearance from './components/BarangayClearance';
+import BarangayClearance from './components/RequestForms/BarangayClearance';
 import Sidebar from './components/Sidebar';
-import OathJobSeeker from './components/OathJobSeeker';
-import SoloParentForm from './components/SoloParentForm';
-import BarangayClearanceCRUD from './components/BarangayClearanceCRUD';
-import BusinessClearance from './components/BusinessClearance';
-import CertificateOfResidency from './components/CertificateOfResidency';
-import PermitToTravel from './components/PermitToTravel';
-import CashAssistance from './components/CashAssistance';
-import Cohabitation from './components/Cohabitation';
-import FinancialAssistance from './components/FinancialAssistance';
-import BhertCertPositive from './components/BhertCertPositive';
+import OathJobSeeker from './components/RequestForms/OathJobSeeker';
+import SoloParentForm from './components/RequestForms/SoloParentForm';
+import BarangayClearanceCRUD from './components/RequestForms/BarangayClearanceCRUD';
+import BusinessClearance from './components/RequestForms/BusinessClearance';
+import CertificateOfResidency from './components/RequestForms/CertificateOfResidency';
+import PermitToTravel from './components/RequestForms/PermitToTravel';
+import CashAssistance from './components/RequestForms/CashAssistance';
+import Cohabitation from './components/RequestForms/Cohabitation';
+import FinancialAssistance from './components/RequestForms/FinancialAssistance';
+import BhertCertPositive from './components/RequestForms/BhertCertPositive';
 import Resident from './components/Resident';
 import Reports from './components/Reports';
-
-
+import { CertificateVerification } from './components/RequestForms/Indigency';
 
 import { useNavigate } from 'react-router-dom';
-
 
 const drawerWidth = 250;
 
@@ -98,10 +96,16 @@ function Header() {
           }}
         />
         <Box>
-          <Typography variant="h6" sx={{ fontWeight: 'bold', lineHeight: 1.2, margin: 0 }}>
-           Caloocan Barangay 145
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: 'bold', lineHeight: 1.2, margin: 0 }}
+          >
+            Caloocan Barangay 145
           </Typography>
-          <Typography variant="body2" sx={{ lineHeight: 1.2, margin: 0, opacity: 0.9 }}>
+          <Typography
+            variant="body2"
+            sx={{ lineHeight: 1.2, margin: 0, opacity: 0.9 }}
+          >
             Record and Management Request System
           </Typography>
         </Box>
@@ -115,10 +119,10 @@ function Navigation() {
   const { user, logout, hasPermission } = useAuth();
   const [anchorEl, setAnchorEl] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [certificatesDropdownOpen, setCertificatesDropdownOpen] = useState(false);
+  const [certificatesDropdownOpen, setCertificatesDropdownOpen] =
+    useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-
 
   const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -132,8 +136,8 @@ function Navigation() {
     logout();
     handleProfileMenuClose();
     setTimeout(() => {
-        navigate('/home');
-      }, 1500);
+      navigate('/home');
+    }, 1500);
   };
 
   const handleCertificatesDropdownToggle = () => {
@@ -141,35 +145,64 @@ function Navigation() {
   };
 
   const navigationItems = [
-    { path: '/home', label: 'Home', icon: <HomeFilled />, permission: 'view_dashboard' },
-    { path: '/residents', label: 'Residents', icon: <PeopleIcon />, permission: 'manage_residents' },
-    { 
-      path: '/certificates', 
-      label: 'Certificates', 
-      icon: <AssignmentIcon />, 
+    {
+      path: '/home',
+      label: 'Home',
+      icon: <HomeFilled />,
+      permission: 'view_dashboard',
+    },
+    {
+      path: '/residents',
+      label: 'Residents',
+      icon: <PeopleIcon />,
+      permission: 'manage_residents',
+    },
+    {
+      path: '/certificates',
+      label: 'Certificates',
+      icon: <AssignmentIcon />,
       permission: 'manage_certificates',
       hasDropdown: true,
       dropdownItems: [
-        { path: '/certificates/certification-action', label: 'Certification Action', icon: <AssignmentIcon /> },
-        { path: '/certificates/indigency', label: 'Indigency', icon: <AssignmentIcon /> }
-      ]
+        {
+          path: '/certificates/certification-action',
+          label: 'Certification Action',
+          icon: <AssignmentIcon />,
+        },
+        {
+          path: '/certificates/indigency',
+          label: 'Indigency',
+          icon: <AssignmentIcon />,
+        },
+      ],
     },
-    { path: '/users', label: 'Users', icon: <SettingsIcon />, permission: 'manage_users' },
-  ].filter(item => hasPermission(item.permission));
+    {
+      path: '/users',
+      label: 'Users',
+      icon: <SettingsIcon />,
+      permission: 'manage_users',
+    },
+  ].filter((item) => hasPermission(item.permission));
 
   return (
     <AppBar
       position="fixed"
-      sx={{ 
-        zIndex: 1201, 
-        bgcolor: '#445C3C', 
+      sx={{
+        zIndex: 1201,
+        bgcolor: '#445C3C',
         height: '65px',
         top: 0,
         left: 0,
-        right: 0
+        right: 0,
       }}
     >
-      <Toolbar sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <Toolbar
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <IconButton
             color="inherit"
@@ -180,7 +213,7 @@ function Navigation() {
           >
             {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
           </IconButton>
-          
+
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <img
               src={CaloocanLogo}
@@ -190,23 +223,37 @@ function Navigation() {
                 marginRight: '10px',
               }}
             />
-           
+
             <Box>
-              <Typography variant="h5" noWrap sx={{ lineHeight: 1.3, color: 'white', fontWeight: 'bold', marginTop: '8px' }}>
-                Caloocan Barangay 145 
+              <Typography
+                variant="h5"
+                noWrap
+                sx={{
+                  lineHeight: 1.3,
+                  color: 'white',
+                  fontWeight: 'bold',
+                  marginTop: '8px',
+                }}
+              >
+                Caloocan Barangay 145
               </Typography>
-              <Typography variant="subtitle1" noWrap sx={{ color: 'white', fontWeight: 'bold', marginTop: '-5px' }}>
-               Record and Request Management System
+              <Typography
+                variant="subtitle1"
+                noWrap
+                sx={{ color: 'white', fontWeight: 'bold', marginTop: '-5px' }}
+              >
+                Record and Request Management System
               </Typography>
             </Box>
           </Box>
         </Box>
 
-
-
         {/* User Profile Menu */}
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography variant="body2" sx={{ color: 'white', mr: 2, display: { xs: 'none', sm: 'block' } }}>
+          <Typography
+            variant="body2"
+            sx={{ color: 'white', mr: 2, display: { xs: 'none', sm: 'block' } }}
+          >
             {user?.name} ({user?.role?.toUpperCase()})
           </Typography>
           <IconButton
@@ -244,12 +291,14 @@ function Navigation() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <Box sx={{ 
-          display: { xs: 'block', md: 'none' }, 
-          bgcolor: '#445C3C',
-          p: 2,
-          borderTop: '1px solid rgba(255,255,255,0.1)'
-        }}>
+        <Box
+          sx={{
+            display: { xs: 'block', md: 'none' },
+            bgcolor: '#445C3C',
+            p: 2,
+            borderTop: '1px solid rgba(255,255,255,0.1)',
+          }}
+        >
           {navigationItems.map((item) => (
             <Box key={item.path}>
               {item.hasDropdown ? (
@@ -257,13 +306,21 @@ function Navigation() {
                   <Button
                     color="inherit"
                     startIcon={item.icon}
-                    endIcon={certificatesDropdownOpen ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    endIcon={
+                      certificatesDropdownOpen ? (
+                        <ExpandLessIcon />
+                      ) : (
+                        <ExpandMoreIcon />
+                      )
+                    }
                     onClick={handleCertificatesDropdownToggle}
                     fullWidth
                     sx={{
                       justifyContent: 'flex-start',
                       mb: 1,
-                      backgroundColor: location.pathname.startsWith(item.path) ? 'rgba(255,255,255,0.1)' : 'transparent',
+                      backgroundColor: location.pathname.startsWith(item.path)
+                        ? 'rgba(255,255,255,0.1)'
+                        : 'transparent',
                       '&:hover': {
                         backgroundColor: 'rgba(255,255,255,0.1)',
                       },
@@ -283,7 +340,10 @@ function Navigation() {
                           sx={{
                             justifyContent: 'flex-start',
                             mb: 1,
-                            backgroundColor: location.pathname === dropdownItem.path ? 'rgba(255,255,255,0.1)' : 'transparent',
+                            backgroundColor:
+                              location.pathname === dropdownItem.path
+                                ? 'rgba(255,255,255,0.1)'
+                                : 'transparent',
                             '&:hover': {
                               backgroundColor: 'rgba(255,255,255,0.1)',
                             },
@@ -304,7 +364,10 @@ function Navigation() {
                   sx={{
                     justifyContent: 'flex-start',
                     mb: 1,
-                    backgroundColor: location.pathname === item.path ? 'rgba(255,255,255,0.1)' : 'transparent',
+                    backgroundColor:
+                      location.pathname === item.path
+                        ? 'rgba(255,255,255,0.1)'
+                        : 'transparent',
                     '&:hover': {
                       backgroundColor: 'rgba(255,255,255,0.1)',
                     },
@@ -340,14 +403,16 @@ function AppContent() {
 
   if (loading) {
     return (
-      <Box sx={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        height: '100vh',
-        fontSize: '1.2rem',
-        color: '#445C3C'
-      }}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          fontSize: '1.2rem',
+          color: '#445C3C',
+        }}
+      >
         Loading...
       </Box>
     );
@@ -363,8 +428,8 @@ function AppContent() {
         margin: 0,
         padding: 0,
         '& *': {
-          boxSizing: 'border-box'
-        }
+          boxSizing: 'border-box',
+        },
       }}
     >
       {user && <Navigation />}
@@ -380,179 +445,189 @@ function AppContent() {
             bgcolor: 'transparent',
             p: user ? 3 : 5,
             fontFamily: 'Poppins, sans-serif',
-            ml: user ? { xs: 0, md: `${drawerWidth}px` } : 0
+            ml: user ? { xs: 0, md: `${drawerWidth}px` } : 0,
           }}
         >
           {user && <Toolbar />}
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/" element={user ? <Navigate to="/home" replace /> : <Navigate to="/login" replace />} />
-          <Route 
-            path="/home" 
-            element={
-              <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <Home />
-              </ProtectedRoute>
-            } 
-          />
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/"
+              element={
+                user ? (
+                  <Navigate to="/home" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
+            />
+            <Route
+              path="/home"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/residents" 
-            element={
-            <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>   
-            <Resident />            
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/residents"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <Resident />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/reports" 
-            element={
-            <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>   
-            <Reports />            
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/reports"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <Reports />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/certificates" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/certification-action" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <CertificationAction />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/indigency" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <Indigency />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/certificates"
+              element={
+                <ProtectedRoute
+                  allowedRoles={['admin', 'staff', 'chairman']}
+                ></ProtectedRoute>
+              }
+            />
+            <Route
+              path="/certification-action"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <CertificationAction />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/indigency"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <Indigency />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/barangay-clearance" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <BarangayClearance />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/verify-certificate"
+              element={<CertificateVerification />}
+            />
 
-          <Route 
-            path="/oath-job-seeker" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <OathJobSeeker />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/barangay-clearance"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <BarangayClearance />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/solo-parent-form" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <SoloParentForm />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/oath-job-seeker"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <OathJobSeeker />
+                </ProtectedRoute>
+              }
+            />
 
-           <Route 
-            path="/business-clearance" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <BusinessClearance />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/solo-parent-form"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <SoloParentForm />
+                </ProtectedRoute>
+              }
+            />
 
+            <Route
+              path="/business-clearance"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <BusinessClearance />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/clearance" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <BarangayClearanceCRUD />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/clearance"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <BarangayClearanceCRUD />
+                </ProtectedRoute>
+              }
+            />
 
-           <Route 
-            path="/certificate-residency" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <CertificateOfResidency />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/certificate-residency"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <CertificateOfResidency />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/permit-to-travel" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <PermitToTravel />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/permit-to-travel"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <PermitToTravel />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/cash-assistance" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <CashAssistance />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/cash-assistance"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <CashAssistance />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/cohabitation" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <Cohabitation />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/cohabitation"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <Cohabitation />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/financial-assistance" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <FinancialAssistance />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/financial-assistance"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <FinancialAssistance />
+                </ProtectedRoute>
+              }
+            />
 
-          <Route 
-            path="/bhert-cert-positive" 
-            element={
-               <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
-                <BhertCertPositive />
-              </ProtectedRoute>
-            } 
-          />
+            <Route
+              path="/bhert-cert-positive"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <BhertCertPositive />
+                </ProtectedRoute>
+              }
+            />
 
-
-          <Route 
-            path="/users" 
-            element={
-              <ProtectedRoute requiredPermission="manage_users">
-                <UserManagement />
-              </ProtectedRoute>
-            } 
-          />
-
-          
-        </Routes>
+            <Route
+              path="/users"
+              element={
+                <ProtectedRoute requiredPermission="manage_users">
+                  <UserManagement />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
         </Box>
       </Box>
-
 
       {/* Footer */}
       <Box
@@ -581,9 +656,11 @@ function AppContent() {
             height: '40px',
           }}
         />
-       
+
         <Typography variant="body2">
-          {'© 2025 - Caloocan Barangay 145 Record and Request Management System. All rights reserved.'}
+          {
+            '© 2025 - Caloocan Barangay 145 Record and Request Management System. All rights reserved.'
+          }
         </Typography>
 
         <img
@@ -622,4 +699,3 @@ export default function WrappedApp() {
     </Router>
   );
 }
-

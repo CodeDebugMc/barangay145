@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Container,
   Paper,
@@ -17,39 +17,65 @@ import {
   InputAdornment,
   IconButton,
   Chip,
-  Stack
-} from "@mui/material";
+  Stack,
+  Modal,
+  Avatar,
+  Fab,
+  ToggleButton,
+  ToggleButtonGroup,
+  Divider,
+  List,
+  ListItem,
+  ListItemText,
+  ListItemAvatar,
+  ListItemSecondaryAction,
+  CardActions,
+} from '@mui/material';
 import {
   Save as SaveIcon,
   Close as CloseIcon,
   Search as SearchIcon,
   Edit as EditIcon,
   Delete as DeleteIcon,
-  Description as FileTextIcon
-} from "@mui/icons-material";
+  Description as FileTextIcon,
+  Person as PersonIcon,
+  Home as HomeIcon,
+  Phone as PhoneIcon,
+  Cake as CakeIcon,
+  Favorite as HeartIcon,
+  CalendarToday as CalendarIcon,
+  ViewList as ViewListIcon,
+  ViewModule as ViewModuleIcon,
+  Add as AddIcon,
+} from '@mui/icons-material';
 
 export default function Residents() {
-  const apiBase = "http://localhost:5000";
+  const apiBase = 'http://localhost:5000';
 
   const [records, setRecords] = useState([]);
   const [editingId, setEditingId] = useState(null);
-  const [isFormOpen, setIsFormOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("form");
-  const [searchTerm, setSearchTerm] = useState("");
-  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [formData, setFormData] = useState({
-    full_name: "",
-    address: "",
-    provincial_address: "",
-    dob: "",
-    age: "",
-    civil_status: "Single",
-    contact_no: "",
-    created_at: new Date().toISOString().split("T")[0],
+    full_name: '',
+    address: '',
+    provincial_address: '',
+    dob: '',
+    age: '',
+    civil_status: 'Single',
+    contact_no: '',
+    created_at: new Date().toISOString().split('T')[0],
   });
 
-  const civilStatusOptions = ["Single", "Married", "Widowed", "Divorced", "Separated"];
+  const civilStatusOptions = [
+    'Single',
+    'Married',
+    'Widowed',
+    'Divorced',
+    'Separated',
+  ];
 
   useEffect(() => {
     loadRecords();
@@ -66,11 +92,11 @@ export default function Residents() {
               full_name: r.full_name,
               address: r.address,
               provincial_address: r.provincial_address,
-              dob: r.dob?.slice(0, 10) || "",
-              age: String(r.age ?? ""),
+              dob: r.dob?.slice(0, 10) || '',
+              age: String(r.age ?? ''),
               civil_status: r.civil_status,
-              contact_no: r.contact_no || "",
-              created_at: r.created_at?.slice(0, 10) || "",
+              contact_no: r.contact_no || '',
+              created_at: r.created_at?.slice(0, 10) || '',
             }))
           : []
       );
@@ -83,10 +109,12 @@ export default function Residents() {
     if (dob) {
       const birthDate = new Date(dob);
       const today = new Date();
-      const age = Math.floor((today - birthDate) / (365.25 * 24 * 60 * 60 * 1000));
+      const age = Math.floor(
+        (today - birthDate) / (365.25 * 24 * 60 * 60 * 1000)
+      );
       setFormData({ ...formData, dob, age: String(age) });
     } else {
-      setFormData({ ...formData, dob: "", age: "" });
+      setFormData({ ...formData, dob: '', age: '' });
     }
   }
 
@@ -99,54 +127,53 @@ export default function Residents() {
       age: data.age ? Number(data.age) : null,
       civil_status: data.civil_status,
       contact_no: data.contact_no.trim() || null,
-      created_at: data.created_at || new Date().toISOString().split("T")[0],
+      created_at: data.created_at || new Date().toISOString().split('T')[0],
     };
   }
 
-function validateForm() {
-  const requiredFields = ["full_name", "address", "dob", "civil_status"];
-  for (let field of requiredFields) {
-    if (!formData[field].trim()) {
-      alert("Please fill all required fields.");
+  function validateForm() {
+    const requiredFields = ['full_name', 'address', 'dob', 'civil_status'];
+    for (let field of requiredFields) {
+      if (!formData[field].trim()) {
+        alert('Please fill all required fields.');
+        return false;
+      }
+    }
+
+    // Check for duplicate resident
+    const isDuplicate = records.some(
+      (r) =>
+        r.full_name.trim().toLowerCase() ===
+          formData.full_name.trim().toLowerCase() &&
+        r.dob === formData.dob &&
+        r.resident_id !== editingId
+    );
+
+    if (isDuplicate) {
+      alert('Resident already exists (same name and date of birth).');
       return false;
     }
+
+    return true;
   }
-
-  // ✅ Check for duplicate resident (same name + same birthday)
-  const isDuplicate = records.some(
-    (r) =>
-      r.full_name.trim().toLowerCase() === formData.full_name.trim().toLowerCase() &&
-      r.dob === formData.dob && // exact same birthdate
-      r.resident_id !== editingId // ignore if editing same record
-  );
-
-  if (isDuplicate) {
-    alert("Resident already exists (same name and date of birth).");
-    return false;
-  }
-
-  return true;
-}
-
 
   async function handleCreate() {
     if (!validateForm()) return;
     try {
       const res = await fetch(`${apiBase}/residents`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(toServerPayload(formData)),
       });
-      if (!res.ok) throw new Error("Create failed");
+      if (!res.ok) throw new Error('Create failed');
       const created = await res.json();
       const newRec = { ...formData, resident_id: created.resident_id };
       setRecords([newRec, ...records]);
       resetForm();
-      alert("Resident added successfully!");
-      setActiveTab("records");
+      alert('Resident added successfully!');
     } catch (e) {
       console.error(e);
-      alert("Failed to create record");
+      alert('Failed to create record');
     }
   }
 
@@ -154,55 +181,57 @@ function validateForm() {
     if (!validateForm()) return;
     try {
       const res = await fetch(`${apiBase}/residents/${editingId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(toServerPayload(formData)),
       });
-      if (!res.ok) throw new Error("Update failed");
+      if (!res.ok) throw new Error('Update failed');
       const updated = { ...formData, resident_id: editingId };
-      setRecords(records.map((r) => (r.resident_id === editingId ? updated : r)));
+      setRecords(
+        records.map((r) => (r.resident_id === editingId ? updated : r))
+      );
       resetForm();
-      alert("Resident updated successfully!");
-      setActiveTab("records");
+      alert('Resident updated successfully!');
     } catch (e) {
       console.error(e);
-      alert("Failed to update record");
+      alert('Failed to update record');
     }
   }
 
   function handleEdit(record) {
     setFormData({ ...record });
     setEditingId(record.resident_id);
-    setIsFormOpen(true);
-    setActiveTab("form");
+    setIsModalOpen(true);
   }
 
   async function handleDelete(id) {
-    if (!window.confirm("Delete this resident?")) return;
+    if (!window.confirm('Delete this resident?')) return;
     try {
-      const res = await fetch(`${apiBase}/residents/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Delete failed");
+      const res = await fetch(`${apiBase}/residents/${id}`, {
+        method: 'DELETE',
+      });
+      if (!res.ok) throw new Error('Delete failed');
       setRecords(records.filter((r) => r.resident_id !== id));
-      alert("Resident deleted successfully!");
+      alert('Resident deleted successfully!');
     } catch (e) {
       console.error(e);
-      alert("Failed to delete resident");
+      alert('Failed to delete resident');
     }
   }
 
   function resetForm() {
     setFormData({
-      full_name: "",
-      address: "",
-      provincial_address: "",
-      dob: "",
-      age: "",
-      civil_status: "Single",
-      contact_no: "",
-      created_at: new Date().toISOString().split("T")[0],
+      full_name: '',
+      address: '',
+      provincial_address: '',
+      dob: '',
+      age: '',
+      civil_status: 'Single',
+      contact_no: '',
+      created_at: new Date().toISOString().split('T')[0],
     });
     setEditingId(null);
-    setIsFormOpen(false);
+    setIsModalOpen(false);
   }
 
   function handleSubmit() {
@@ -216,281 +245,511 @@ function validateForm() {
         (r) =>
           r.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           r.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (r.contact_no || "").includes(searchTerm)
+          (r.contact_no || '').includes(searchTerm)
       ),
     [records, searchTerm]
   );
 
   function formatDate(dateString) {
-    if (!dateString) return "";
+    if (!dateString) return '';
     const date = new Date(dateString);
-    return date.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  }
+
+  function getInitials(name) {
+    return name
+      .split(' ')
+      .map((n) => n[0])
+      .join('')
+      .toUpperCase();
   }
 
   return (
     <Box
       sx={{
-        minHeight: "100vh",
-        width: "100%",
-        bgcolor: "grey.100",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        flexDirection: "column",
+        minHeight: '100vh',
+        width: '100%',
+        bgcolor: 'grey.100',
         p: 2,
       }}
     >
-      <Box
-        sx={{
-          width: "100%",
-          maxWidth: 800,
-          bgcolor: "white",
-          borderRadius: 3,
-          boxShadow: 3,
-          p: 2,
-        }}
-      >
+      <Container maxWidth="lg">
         {/* Header */}
-        <Box sx={{ px: 2, py: 1.5, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Typography variant="h6" sx={{ fontWeight: 800, color: "#445C3C" }}>
-            Residents Information
+        <Paper
+          elevation={3}
+          sx={{
+            p: 3,
+            mb: 3,
+            borderRadius: 3,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            bgcolor: '#445C3C',
+            color: 'white',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Avatar sx={{ bgcolor: 'white', color: '#445C3C', mr: 2 }}>
+              <PersonIcon />
+            </Avatar>
+            <Typography variant="h4" sx={{ fontWeight: 700 }}>
+              Residents Information
+            </Typography>
+          </Box>
+          <Typography variant="body1">
+            Total Records: {records.length}
           </Typography>
-          <Button
-            variant="outlined"
+        </Paper>
+
+        {/* Search and View Controls */}
+        <Paper
+          elevation={2}
+          sx={{
+            p: 2,
+            mb: 3,
+            borderRadius: 3,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <TextField
+            sx={{ width: '70%' }}
             size="small"
-            startIcon={<FileTextIcon />}
-            onClick={() => {
-              resetForm();
-              setIsFormOpen(true);
-              setActiveTab("form");
+            placeholder="Search residents..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: 'grey.400' }} />
+                </InputAdornment>
+              ),
             }}
+          />
+          <ToggleButtonGroup
+            value={viewMode}
+            exclusive
+            onChange={(e, newMode) => newMode && setViewMode(newMode)}
+            aria-label="view mode"
+          >
+            <ToggleButton value="grid" aria-label="grid view">
+              <ViewModuleIcon />
+            </ToggleButton>
+            <ToggleButton value="list" aria-label="list view">
+              <ViewListIcon />
+            </ToggleButton>
+          </ToggleButtonGroup>
+        </Paper>
+
+        {/* Records Display */}
+        {filteredRecords.length === 0 ? (
+          <Paper
             sx={{
-              textTransform: "none",
-              fontSize: "0.875rem",
-              color: "grey.700",
-              borderColor: "grey.400",
-              "&:hover": {
-                bgcolor: "#445C3C",
-                color: "#ffffff",
-              },
+              p: 5,
+              textAlign: 'center',
+              borderRadius: 3,
+              bgcolor: 'white',
             }}
           >
-            New
-          </Button>
-        </Box>
-
-        {/* Tabs */}
-        <Box sx={{ px: 1, pb: 1 }}>
-          <Paper sx={{ p: 0.5, bgcolor: "grey.200", borderRadius: 2 }}>
-            <Box sx={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0.5 }}>
-              <Button
-                onClick={() => setActiveTab("form")}
-                variant={activeTab === "form" ? "contained" : "text"}
-                sx={{
-                  textTransform: "none",
-                  fontWeight: 500,
-                  fontSize: "0.875rem",
-                  py: 1,
-                  bgcolor: activeTab === "form" ? "white" : "transparent",
-                  color: activeTab === "form" ? "success.main" : "grey.600",
-                  boxShadow: activeTab === "form" ? 1 : 0,
-                }}
-              >
-                Form
-              </Button>
-              <Button
-                onClick={() => setActiveTab("records")}
-                variant={activeTab === "records" ? "contained" : "text"}
-                sx={{
-                  textTransform: "none",
-                  fontWeight: 500,
-                  fontSize: "0.875rem",
-                  py: 1,
-                  bgcolor: activeTab === "records" ? "white" : "transparent",
-                  color: activeTab === "records" ? "success.main" : "grey.600",
-                  boxShadow: activeTab === "records" ? 1 : 0,
-                }}
-              >
-                Records ({records.length})
-              </Button>
-            </Box>
+            <Typography variant="h6" color="textSecondary">
+              {searchTerm ? 'No residents found' : 'No records yet'}
+            </Typography>
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+              Click the + button to add a new resident
+            </Typography>
           </Paper>
-        </Box>
-
-        {/* FORM */}
-        {activeTab === "form" && (
-          <Box sx={{ flex: 1, p: 2 }}>
-            <Card sx={{ borderRadius: 3, boxShadow: 1 }}>
-              <CardHeader
-                title={
-                  <Typography variant="h6" sx={{ fontSize: "1rem", fontWeight: 600, color: "grey.800" }}>
-                    {editingId ? "Edit Resident Record" : "New Resident Record"}
-                  </Typography>
-                }
-              />
-              <CardContent>
-                <Stack spacing={2}>
-                  <TextField
-                    label="Full Name *"
-                    size="small"
-                    fullWidth
-                    value={formData.full_name}
-                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+        ) : viewMode === 'grid' ? (
+          <Grid container spacing={3}>
+            {filteredRecords.map((record) => (
+              <Grid item xs={12} sm={6} md={4} key={record.resident_id}>
+                <Card
+                  elevation={3}
+                  sx={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    transition: 'transform 0.2s',
+                    '&:hover': {
+                      transform: 'translateY(-5px)',
+                      boxShadow: 6,
+                    },
+                  }}
+                >
+                  <CardHeader
+                    avatar={
+                      <Avatar sx={{ bgcolor: '#445C3C' }}>
+                        {getInitials(record.full_name)}
+                      </Avatar>
+                    }
+                    title={record.full_name}
+                    subheader={`Age: ${record.age}`}
                   />
-                  <TextField
-                    label="Address *"
-                    size="small"
-                    fullWidth
-                    multiline
-                    rows={2}
-                    value={formData.address}
-                    onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                  />
-                  <Grid container spacing={1.5}>
-                    <Grid item xs={6}>
-                      <TextField
-                        label="Date of Birth *"
-                        type="date"
-                        size="small"
-                        fullWidth
-                        InputLabelProps={{ shrink: true }}
-                        value={formData.dob}
-                        onChange={(e) => handleDobChange(e.target.value)}
-                      />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <TextField label="Age" size="small" fullWidth value={formData.age} InputProps={{ readOnly: true }} />
-                    </Grid>
-                  </Grid>
-                  <TextField
-                    label="Provincial Address"
-                    size="small"
-                    fullWidth
-                    value={formData.provincial_address}
-                    onChange={(e) => setFormData({ ...formData, provincial_address: e.target.value })}
-                  />
-                  <TextField
-                    label="Contact Number"
-                    size="small"
-                    fullWidth
-                    value={formData.contact_no}
-                    onChange={(e) => setFormData({ ...formData, contact_no: e.target.value })}
-                  />
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Civil Status *</InputLabel>
-                    <Select
-                      value={formData.civil_status}
-                      label="Civil Status *"
-                      onChange={(e) => setFormData({ ...formData, civil_status: e.target.value })}
+                  <Divider />
+                  <CardContent sx={{ flexGrow: 1 }}>
+                    <Stack spacing={1}>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <HomeIcon
+                          fontSize="small"
+                          sx={{ mr: 1, color: '#445C3C' }}
+                        />
+                        <Typography variant="body2">
+                          {record.address}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <CakeIcon
+                          fontSize="small"
+                          sx={{ mr: 1, color: '#445C3C' }}
+                        />
+                        <Typography variant="body2">
+                          {formatDate(record.dob)}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <HeartIcon
+                          fontSize="small"
+                          sx={{ mr: 1, color: '#445C3C' }}
+                        />
+                        <Typography variant="body2">
+                          {record.civil_status}
+                        </Typography>
+                      </Box>
+                      {record.contact_no && (
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <PhoneIcon
+                            fontSize="small"
+                            sx={{ mr: 1, color: '#445C3C' }}
+                          />
+                          <Typography variant="body2">
+                            {record.contact_no}
+                          </Typography>
+                        </Box>
+                      )}
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <CalendarIcon
+                          fontSize="small"
+                          sx={{ mr: 1, color: '#445C3C' }}
+                        />
+                        <Typography variant="body2">
+                          Added: {formatDate(record.created_at)}
+                        </Typography>
+                      </Box>
+                    </Stack>
+                  </CardContent>
+                  <CardActions sx={{ justifyContent: 'flex-end' }}>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEdit(record)}
+                      sx={{ color: '#445C3C' }}
                     >
-                      {civilStatusOptions.map((status) => (
-                        <MenuItem key={status} value={status}>
-                          {status}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Button
-                      variant="contained"
-                      startIcon={<SaveIcon />}
-                      fullWidth
-                      sx={{
-                        background: "linear-gradient(45deg, #2e7d32, #388e3c)",
-                        "&:hover": {
-                          background: "linear-gradient(45deg, #1b5e20, #2e7d32)",
-                        },
-                      }}
-                      onClick={handleSubmit}
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      size="small"
+                      onClick={() => handleDelete(record.resident_id)}
+                      sx={{ color: '#d32f2f' }}
                     >
-                      {editingId ? "Update" : "Save"}
-                    </Button>
-                    {(editingId || isFormOpen) && (
-                      <Button variant="outlined" startIcon={<CloseIcon />} onClick={resetForm}>
-                        Cancel
-                      </Button>
-                    )}
-                  </Box>
-                </Stack>
-              </CardContent>
-            </Card>
-          </Box>
+                      <DeleteIcon />
+                    </IconButton>
+                  </CardActions>
+                </Card>
+              </Grid>
+            ))}
+          </Grid>
+        ) : (
+          <Paper elevation={3} sx={{ borderRadius: 3 }}>
+            <List>
+              {filteredRecords.map((record, index) => (
+                <React.Fragment key={record.resident_id}>
+                  <ListItem alignItems="flex-start">
+                    <ListItemAvatar>
+                      <Avatar sx={{ bgcolor: '#445C3C' }}>
+                        {getInitials(record.full_name)}
+                      </Avatar>
+                    </ListItemAvatar>
+                    <ListItemText
+                      primary={
+                        <Typography variant="h6" sx={{ fontWeight: 600 }}>
+                          {record.full_name}
+                        </Typography>
+                      }
+                      secondary={
+                        <Stack spacing={0.5} sx={{ mt: 1 }}>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <HomeIcon
+                              fontSize="small"
+                              sx={{ mr: 1, color: '#445C3C' }}
+                            />
+                            <Typography variant="body2">
+                              {record.address}
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <CakeIcon
+                              fontSize="small"
+                              sx={{ mr: 1, color: '#445C3C' }}
+                            />
+                            <Typography variant="body2">
+                              {formatDate(record.dob)} ({record.age} years old)
+                            </Typography>
+                          </Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                            <HeartIcon
+                              fontSize="small"
+                              sx={{ mr: 1, color: '#445C3C' }}
+                            />
+                            <Typography variant="body2">
+                              {record.civil_status}
+                            </Typography>
+                          </Box>
+                          {record.contact_no && (
+                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                              <PhoneIcon
+                                fontSize="small"
+                                sx={{ mr: 1, color: '#445C3C' }}
+                              />
+                              <Typography variant="body2">
+                                {record.contact_no}
+                              </Typography>
+                            </Box>
+                          )}
+                        </Stack>
+                      }
+                    />
+                    <ListItemSecondaryAction>
+                      <IconButton
+                        edge="end"
+                        onClick={() => handleEdit(record)}
+                        sx={{ color: '#445C3C', mr: 1 }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                      <IconButton
+                        edge="end"
+                        onClick={() => handleDelete(record.resident_id)}
+                        sx={{ color: '#d32f2f' }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItemSecondaryAction>
+                  </ListItem>
+                  {index < filteredRecords.length - 1 && (
+                    <Divider variant="inset" component="li" />
+                  )}
+                </React.Fragment>
+              ))}
+            </List>
+          </Paper>
         )}
 
-        {/* RECORDS */}
-        {activeTab === "records" && (
-          <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
-            <Box sx={{ p: 1.5 }}>
+        {/* Floating Action Button */}
+        <Fab
+          color="primary"
+          aria-label="add"
+          sx={{
+            position: 'fixed',
+            bottom: 100,
+            right: 16,
+            bgcolor: '#445C3C',
+            '&:hover': {
+              bgcolor: '#2e3d28',
+            },
+          }}
+          onClick={() => {
+            resetForm();
+            setIsModalOpen(true);
+          }}
+        >
+          <AddIcon />
+        </Fab>
+
+        {/* Modal for Form */}
+        <Modal
+          open={isModalOpen}
+          onClose={resetForm}
+          aria-labelledby="resident-form-modal"
+          aria-describedby="form-to-add-or-edit-resident"
+        >
+          <Box
+            sx={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: { xs: '90%', sm: '70%', md: '50%' },
+              maxHeight: '90vh',
+              overflow: 'auto',
+              bgcolor: 'background.paper',
+              boxShadow: 24,
+              p: 4,
+              borderRadius: 3,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
+              <Avatar sx={{ bgcolor: '#445C3C', mr: 2 }}>
+                <PersonIcon />
+              </Avatar>
+              <Typography variant="h5" component="h2">
+                {editingId ? 'Edit Resident Record' : 'New Resident Record'}
+              </Typography>
+            </Box>
+
+            <Stack spacing={2}>
               <TextField
-                fullWidth
+                label="Full Name *"
                 size="small"
-                placeholder="Search residents..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                fullWidth
+                value={formData.full_name}
+                onChange={(e) =>
+                  setFormData({ ...formData, full_name: e.target.value })
+                }
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <SearchIcon sx={{ color: "grey.400", fontSize: 20 }} />
+                      <PersonIcon fontSize="small" />
                     </InputAdornment>
                   ),
                 }}
               />
-            </Box>
-            <Box sx={{ flex: 1, overflow: "auto", px: 1.5, pb: 1.5 }}>
-              {filteredRecords.length === 0 ? (
-                <Paper sx={{ p: 3, textAlign: "center", color: "grey.500" }}>
-                  <Typography variant="body2">
-                    {searchTerm ? "No residents found" : "No records yet"}
-                  </Typography>
-                </Paper>
-              ) : (
-                <Stack spacing={1}>
-                  {filteredRecords.map((record) => (
-                    <Card key={record.resident_id} sx={{ boxShadow: 1 }}>
-                      <CardContent sx={{ p: 1.5 }}>
-                        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                          <Box sx={{ flex: 1 }}>
-                            <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                              {record.full_name}
-                            </Typography>
-                            <Typography variant="caption" sx={{ color: "grey.600" }}>
-                              {record.address}
-                            </Typography>
-                            <Box sx={{ display: "flex", gap: 0.5 }}>
-                              <Chip
-                                label={record.civil_status}
-                                size="small"
-                                sx={{ bgcolor: "grey.100", fontSize: "0.625rem" }}
-                              />
-                              {record.contact_no && (
-                                <Typography variant="caption" sx={{ color: "grey.500", fontSize: "0.625rem" }}>
-                                  {record.contact_no}
-                                </Typography>
-                              )}
-                              <Typography variant="caption" sx={{ color: "grey.400", fontSize: "0.625rem" }}>
-                                Added: {formatDate(record.created_at)}
-                              </Typography>
-                            </Box>
-                          </Box>
-                          <Box sx={{ display: "flex", gap: 0.5 }}>
-                            <IconButton size="small" onClick={() => handleEdit(record)}>
-                              <EditIcon sx={{ fontSize: 16, color: "#2e7d32" }} />
-                            </IconButton>
-                            <IconButton size="small" onClick={() => handleDelete(record.resident_id)}>
-                              <DeleteIcon sx={{ fontSize: 16, color: "#d32f2f" }} />
-                            </IconButton>
-                          </Box>
-                        </Box>
-                      </CardContent>
-                    </Card>
+              <TextField
+                label="Address *"
+                size="small"
+                fullWidth
+                multiline
+                rows={2}
+                value={formData.address}
+                onChange={(e) =>
+                  setFormData({ ...formData, address: e.target.value })
+                }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <HomeIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <TextField
+                    label="Date of Birth *"
+                    type="date"
+                    size="small"
+                    fullWidth
+                    InputLabelProps={{ shrink: true }}
+                    value={formData.dob}
+                    onChange={(e) => handleDobChange(e.target.value)}
+                    InputProps={{
+                      startAdornment: (
+                        <InputAdornment position="start">
+                          <CakeIcon fontSize="small" />
+                        </InputAdornment>
+                      ),
+                    }}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <TextField
+                    label="Age"
+                    size="small"
+                    fullWidth
+                    value={formData.age}
+                    InputProps={{ readOnly: true }}
+                  />
+                </Grid>
+              </Grid>
+              <TextField
+                label="Provincial Address"
+                size="small"
+                fullWidth
+                value={formData.provincial_address}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    provincial_address: e.target.value,
+                  })
+                }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <HomeIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                label="Contact Number"
+                size="small"
+                fullWidth
+                value={formData.contact_no}
+                onChange={(e) =>
+                  setFormData({ ...formData, contact_no: e.target.value })
+                }
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <PhoneIcon fontSize="small" />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <FormControl fullWidth size="small">
+                <InputLabel>Civil Status *</InputLabel>
+                <Select
+                  value={formData.civil_status}
+                  label="Civil Status *"
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      civil_status: e.target.value,
+                    })
+                  }
+                  startAdornment={
+                    <InputAdornment position="start">
+                      <HeartIcon fontSize="small" />
+                    </InputAdornment>
+                  }
+                >
+                  {civilStatusOptions.map((status) => (
+                    <MenuItem key={status} value={status}>
+                      {status}
+                    </MenuItem>
                   ))}
-                </Stack>
-              )}
-            </Box>
+                </Select>
+              </FormControl>
+
+              <Box sx={{ display: 'flex', gap: 1, mt: 2 }}>
+                <Button
+                  variant="contained"
+                  startIcon={<SaveIcon />}
+                  fullWidth
+                  sx={{
+                    background: 'linear-gradient(45deg, #2e7d32, #388e3c)',
+                    '&:hover': {
+                      background: 'linear-gradient(45deg, #1b5e20, #2e7d32)',
+                    },
+                  }}
+                  onClick={handleSubmit}
+                >
+                  {editingId ? 'Update' : 'Save'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<CloseIcon />}
+                  onClick={resetForm}
+                >
+                  Cancel
+                </Button>
+              </Box>
+            </Stack>
           </Box>
-        )}
-      </Box>
+        </Modal>
+      </Container>
     </Box>
   );
 }
