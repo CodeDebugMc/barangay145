@@ -2173,6 +2173,766 @@ app.delete('/oath-job/:id', async (req, res) => {
   }
 });
 
+
+
+/**
+ * CASH ASSISTANCE CRUD
+ */
+
+// GET all active cash assistance records
+app.get('/cash-assistance', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM cash_assistance WHERE is_active = TRUE ORDER BY cash_assistance_id DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch cash assistance records' });
+  }
+});
+
+// GET single cash assistance record by ID
+app.get('/cash-assistance/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query(
+      `SELECT * FROM cash_assistance WHERE cash_assistance_id = ?`,
+      [id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ error: 'Record not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch record' });
+  }
+});
+
+// CREATE new cash assistance record
+app.post('/cash-assistance', async (req, res) => {
+  try {
+    const {
+      resident_id,
+      full_name,
+      since_year,
+      address,
+      request_reason,
+      date_issued,
+      transaction_number,
+    } = req.body;
+
+    if (!full_name || !address || !request_reason || !date_issued) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const finalTransactionNumber =
+      transaction_number || `CA-${Date.now().toString().slice(-8)}`;
+
+    const [result] = await pool.query(
+      `INSERT INTO cash_assistance 
+        (resident_id, full_name, since_year, address, request_reason, date_issued, transaction_number)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [
+        resident_id,
+        full_name,
+        since_year,
+        address,
+        request_reason,
+        date_issued,
+        finalTransactionNumber,
+      ]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT * FROM cash_assistance WHERE cash_assistance_id = ?`,
+      [result.insertId]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create record' });
+  }
+});
+
+// UPDATE existing cash assistance record
+app.put('/cash-assistance/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      resident_id,
+      full_name,
+      since_year,
+      address,
+      request_reason,
+      date_issued,
+      transaction_number,
+    } = req.body;
+
+    const [result] = await pool.query(
+      `UPDATE cash_assistance
+       SET resident_id=?, full_name=?, since_year=?, address=?, request_reason=?, date_issued=?, transaction_number=?, date_updated=NOW()
+       WHERE cash_assistance_id=?`,
+      [
+        resident_id,
+        full_name,
+        since_year,
+        address,
+        request_reason,
+        date_issued,
+        transaction_number,
+        id,
+      ]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Record not found' });
+
+    const [updated] = await pool.query(
+      `SELECT * FROM cash_assistance WHERE cash_assistance_id = ?`,
+      [id]
+    );
+
+    res.json(updated[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update record' });
+  }
+});
+
+// DELETE cash assistance (soft delete)
+app.delete('/cash-assistance/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await pool.query(
+      `UPDATE cash_assistance SET is_active = FALSE, date_updated = NOW() WHERE cash_assistance_id = ?`,
+      [id]
+    );
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Record not found' });
+    res.json({ message: 'Record deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete record' });
+  }
+});
+
+
+
+/**
+ * FINANCIAL ASSISTANCE CRUD
+ */
+
+// GET all active financial assistance records
+app.get('/financial-assistance', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM financial_assistance WHERE is_active = TRUE ORDER BY financial_assistance_id DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch financial assistance records' });
+  }
+});
+
+// GET single financial assistance record by ID
+app.get('/financial-assistance/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query(
+      `SELECT * FROM financial_assistance WHERE financial_assistance_id = ?`,
+      [id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ error: 'Record not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch record' });
+  }
+});
+
+// CREATE new financial assistance record
+app.post('/financial-assistance', async (req, res) => {
+  try {
+    const {
+      resident_id,
+      full_name,
+      age,
+      dob,
+      address,
+      occupation,
+      purpose,
+      monthly_income,
+      date_issued,
+      transaction_number,
+    } = req.body;
+
+    if (!full_name || !address || !purpose || !date_issued) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const finalTransactionNumber =
+      transaction_number || `FIN-${Date.now().toString().slice(-8)}`;
+
+    const [result] = await pool.query(
+      `INSERT INTO financial_assistance 
+        (resident_id, full_name, age, dob, address, occupation, purpose, monthly_income, date_issued, transaction_number)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        resident_id,
+        full_name,
+        age,
+        dob,
+        address,
+        occupation,
+        purpose,
+        monthly_income,
+        date_issued,
+        finalTransactionNumber,
+      ]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT * FROM financial_assistance WHERE financial_assistance_id = ?`,
+      [result.insertId]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create record' });
+  }
+});
+
+// UPDATE existing financial assistance record
+app.put('/financial-assistance/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      resident_id,
+      full_name,
+      age,
+      dob,
+      address,
+      occupation,
+      purpose,
+      monthly_income,
+      date_issued,
+      transaction_number,
+    } = req.body;
+
+    const [result] = await pool.query(
+      `UPDATE financial_assistance
+       SET resident_id=?, full_name=?, age=?, dob=?, address=?, occupation=?, purpose=?, monthly_income=?, date_issued=?, transaction_number=?, date_updated=NOW()
+       WHERE financial_assistance_id=?`,
+      [
+        resident_id,
+        full_name,
+        age,
+        dob,
+        address,
+        occupation,
+        purpose,
+        monthly_income,
+        date_issued,
+        transaction_number,
+        id,
+      ]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Record not found' });
+
+    const [updated] = await pool.query(
+      `SELECT * FROM financial_assistance WHERE financial_assistance_id = ?`,
+      [id]
+    );
+
+    res.json(updated[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update record' });
+  }
+});
+
+// DELETE financial assistance (soft delete)
+app.delete('/financial-assistance/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await pool.query(
+      `UPDATE financial_assistance SET is_active = FALSE, date_updated = NOW() WHERE financial_assistance_id = ?`,
+      [id]
+    );
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Record not found' });
+    res.json({ message: 'Record deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete record' });
+  }
+});
+
+
+
+
+
+/**
+ * BHERT CERTIFICATE (POSITIVE) CRUD
+ */
+
+// GET all active BHERT certificate (positive) records
+app.get('/bhert-certificate-positive', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM bhert_certificate_positive WHERE is_active = TRUE ORDER BY bhert_certificate_positive_id DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch BHERT certificate records' });
+  }
+});
+
+// GET single BHERT certificate (positive) record by ID
+app.get('/bhert-certificate-positive/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query(
+      `SELECT * FROM bhert_certificate_positive WHERE bhert_certificate_positive_id = ?`,
+      [id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ error: 'Record not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch record' });
+  }
+});
+
+// CREATE new BHERT certificate (positive)
+app.post('/bhert-certificate-positive', async (req, res) => {
+  try {
+    const {
+      resident_id,
+      full_name,
+      address,
+      request_reason,
+      date_issued,
+      transaction_number,
+    } = req.body;
+
+    if (!full_name || !address || !request_reason || !date_issued) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const finalTransactionNumber =
+      transaction_number || `BHP-${Date.now().toString().slice(-8)}`;
+
+    const [result] = await pool.query(
+      `INSERT INTO bhert_certificate_positive 
+        (resident_id, full_name, address, request_reason, date_issued, transaction_number)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [
+        resident_id,
+        full_name,
+        address,
+        request_reason,
+        date_issued,
+        finalTransactionNumber,
+      ]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT * FROM bhert_certificate_positive WHERE bhert_certificate_positive_id = ?`,
+      [result.insertId]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create record' });
+  }
+});
+
+// UPDATE existing BHERT certificate (positive)
+app.put('/bhert-certificate-positive/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      resident_id,
+      full_name,
+      address,
+      request_reason,
+      date_issued,
+      transaction_number,
+    } = req.body;
+
+    const [result] = await pool.query(
+      `UPDATE bhert_certificate_positive
+       SET resident_id=?, full_name=?, address=?, request_reason=?, date_issued=?, transaction_number=?, date_updated=NOW()
+       WHERE bhert_certificate_positive_id=?`,
+      [
+        resident_id,
+        full_name,
+        address,
+        request_reason,
+        date_issued,
+        transaction_number,
+        id,
+      ]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Record not found' });
+
+    const [updated] = await pool.query(
+      `SELECT * FROM bhert_certificate_positive WHERE bhert_certificate_positive_id = ?`,
+      [id]
+    );
+
+    res.json(updated[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update record' });
+  }
+});
+
+// DELETE BHERT certificate (positive) (soft delete)
+app.delete('/bhert-certificate-positive/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await pool.query(
+      `UPDATE bhert_certificate_positive SET is_active = FALSE, date_updated = NOW() WHERE bhert_certificate_positive_id = ?`,
+      [id]
+    );
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Record not found' });
+    res.json({ message: 'Record deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete record' });
+  }
+});
+
+
+/**
+ * CERTIFICATE OF ACTION CRUD
+ */
+
+// GET all active certificate of action records
+app.get('/certificate-of-action', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM certificate_of_action WHERE is_active = TRUE ORDER BY certificate_of_action_id DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch certificate of action records' });
+  }
+});
+
+// GET single certificate of action record by ID
+app.get('/certificate-of-action/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query(
+      `SELECT * FROM certificate_of_action WHERE certificate_of_action_id = ?`,
+      [id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ error: 'Record not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch record' });
+  }
+});
+
+// CREATE new certificate of action
+app.post('/certificate-of-action', async (req, res) => {
+  try {
+    const {
+      resident_id,
+      complainant_name,
+      respondent_name,
+      barangay_case_no,
+      request_reason,
+      filed_date,
+      date_issued,
+      transaction_number,
+    } = req.body;
+
+    if (!complainant_name || !respondent_name || !request_reason || !date_issued) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const finalTransactionNumber =
+      transaction_number || `CACT-${Date.now().toString().slice(-8)}`;
+
+    const [result] = await pool.query(
+      `INSERT INTO certificate_of_action 
+        (resident_id, complainant_name, respondent_name, barangay_case_no, request_reason, filed_date, date_issued, transaction_number)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        resident_id,
+        complainant_name,
+        respondent_name,
+        barangay_case_no,
+        request_reason,
+        filed_date,
+        date_issued,
+        finalTransactionNumber,
+      ]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT * FROM certificate_of_action WHERE certificate_of_action_id = ?`,
+      [result.insertId]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create record' });
+  }
+});
+
+// UPDATE existing certificate of action
+app.put('/certificate-of-action/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      resident_id,
+      complainant_name,
+      respondent_name,
+      barangay_case_no,
+      request_reason,
+      filed_date,
+      date_issued,
+      transaction_number,
+    } = req.body;
+
+    const [result] = await pool.query(
+      `UPDATE certificate_of_action
+       SET resident_id=?, complainant_name=?, respondent_name=?, barangay_case_no=?, request_reason=?, filed_date=?, date_issued=?, transaction_number=?, date_updated=NOW()
+       WHERE certificate_of_action_id=?`,
+      [
+        resident_id,
+        complainant_name,
+        respondent_name,
+        barangay_case_no,
+        request_reason,
+        filed_date,
+        date_issued,
+        transaction_number,
+        id,
+      ]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Record not found' });
+
+    const [updated] = await pool.query(
+      `SELECT * FROM certificate_of_action WHERE certificate_of_action_id = ?`,
+      [id]
+    );
+
+    res.json(updated[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update record' });
+  }
+});
+
+// DELETE certificate of action (soft delete)
+app.delete('/certificate-of-action/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await pool.query(
+      `UPDATE certificate_of_action SET is_active = FALSE, date_updated = NOW() WHERE certificate_of_action_id = ?`,
+      [id]
+    );
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Record not found' });
+    res.json({ message: 'Record deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete record' });
+  }
+});
+
+
+/**
+ * CERTIFICATE OF COHABITATION CRUD
+ */
+
+// GET all active cohabitation certificate records
+app.get('/certificate-of-cohabitation', async (req, res) => {
+  try {
+    const [rows] = await pool.query(
+      `SELECT * FROM certificate_of_cohabitation WHERE is_active = TRUE ORDER BY certificate_of_cohabitation_id DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch cohabitation certificate records' });
+  }
+});
+
+// GET single cohabitation certificate by ID
+app.get('/certificate-of-cohabitation/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query(
+      `SELECT * FROM certificate_of_cohabitation WHERE certificate_of_cohabitation_id = ?`,
+      [id]
+    );
+    if (rows.length === 0)
+      return res.status(404).json({ error: 'Record not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch record' });
+  }
+});
+
+// CREATE new cohabitation certificate
+app.post('/certificate-of-cohabitation', async (req, res) => {
+  try {
+    const {
+      resident1_id,
+      resident2_id,
+      full_name1,
+      dob1,
+      full_name2,
+      dob2,
+      address,
+      date_started,
+      date_issued,
+      witness1_name,
+      witness2_name,
+      transaction_number,
+    } = req.body;
+
+    if (!full_name1 || !full_name2 || !address || !date_started || !date_issued) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const finalTransactionNumber =
+      transaction_number || `COH-${Date.now().toString().slice(-8)}`;
+
+    const [result] = await pool.query(
+      `INSERT INTO certificate_of_cohabitation
+        (resident1_id, resident2_id, full_name1, dob1, full_name2, dob2, address, date_started, date_issued, witness1_name, witness2_name, transaction_number)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        resident1_id,
+        resident2_id,
+        full_name1,
+        dob1,
+        full_name2,
+        dob2,
+        address,
+        date_started,
+        date_issued,
+        witness1_name,
+        witness2_name,
+        finalTransactionNumber,
+      ]
+    );
+
+    const [rows] = await pool.query(
+      `SELECT * FROM certificate_of_cohabitation WHERE certificate_of_cohabitation_id = ?`,
+      [result.insertId]
+    );
+
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to create record' });
+  }
+});
+
+// UPDATE existing cohabitation certificate
+app.put('/certificate-of-cohabitation/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      resident1_id,
+      resident2_id,
+      full_name1,
+      dob1,
+      full_name2,
+      dob2,
+      address,
+      date_started,
+      date_issued,
+      witness1_name,
+      witness2_name,
+      transaction_number,
+    } = req.body;
+
+    const [result] = await pool.query(
+      `UPDATE certificate_of_cohabitation
+       SET resident1_id=?, resident2_id=?, full_name1=?, dob1=?, full_name2=?, dob2=?, address=?, date_started=?, date_issued=?, witness1_name=?, witness2_name=?, transaction_number=?, date_updated=NOW()
+       WHERE certificate_of_cohabitation_id=?`,
+      [
+        resident1_id,
+        resident2_id,
+        full_name1,
+        dob1,
+        full_name2,
+        dob2,
+        address,
+        date_started,
+        date_issued,
+        witness1_name,
+        witness2_name,
+        transaction_number,
+        id,
+      ]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Record not found' });
+
+    const [updated] = await pool.query(
+      `SELECT * FROM certificate_of_cohabitation WHERE certificate_of_cohabitation_id = ?`,
+      [id]
+    );
+
+    res.json(updated[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to update record' });
+  }
+});
+
+// DELETE cohabitation certificate (soft delete)
+app.delete('/certificate-of-cohabitation/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await pool.query(
+      `UPDATE certificate_of_cohabitation SET is_active = FALSE, date_updated = NOW() WHERE certificate_of_cohabitation_id = ?`,
+      [id]
+    );
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: 'Record not found' });
+    res.json({ message: 'Record deleted successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to delete record' });
+  }
+});
+
+
+
+
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
 });

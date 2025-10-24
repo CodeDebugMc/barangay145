@@ -58,6 +58,7 @@ export default function Sidebar() {
         { path: '/cohabitation', label: 'Cohabitation', icon: <AssignmentIcon /> },
         { path: '/financial-assistance', label: 'Financial Assistance', icon: <AssignmentIcon /> },
         { path: '/bhert-cert-positive', label: 'Bhert Certificate Positive', icon: <AssignmentIcon /> },
+        { path: '/bhert-cert-normal', label: 'Bhert Certificate Normal', icon: <AssignmentIcon /> },
 
       ]
     },

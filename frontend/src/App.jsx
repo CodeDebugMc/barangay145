@@ -62,6 +62,7 @@ import FinancialAssistance from './components/RequestForms/FinancialAssistance';
 import BhertCertPositive from './components/RequestForms/BhertCertPositive';
 import Resident from './components/Resident';
 import Reports from './components/Reports';
+import BhertCertNormal from './components/RequestForms/BhertCertNormal';
 import { CertificateVerification } from './components/RequestForms/Indigency';
 
 import { useNavigate } from 'react-router-dom';
@@ -615,6 +616,15 @@ function AppContent() {
               element={
                 <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
                   <BhertCertPositive />
+                </ProtectedRoute>
+              }
+            />
+
+            <Route
+              path="/bhert-cert-normal"
+              element={
+                <ProtectedRoute allowedRoles={['admin', 'staff', 'chairman']}>
+                  <BhertCertNormal />
                 </ProtectedRoute>
               }
             />
