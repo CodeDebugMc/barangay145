@@ -1,7 +1,7 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import CaloocanLogo from '../../assets/CaloocanLogo.png';
-import Logo145 from '../../assets/Logo145.png';
-import BagongPilipinas from '../../assets/BagongPilipinas.png';
+import React, { useEffect, useMemo, useState } from "react";
+import CaloocanLogo from "../../assets/CaloocanLogo.png";
+import Logo145 from "../../assets/Logo145.png";
+import BagongPilipinas from "../../assets/BagongPilipinas.png";
 
 // Import Material UI components at the top of your file
 import {
@@ -23,7 +23,7 @@ import {
   IconButton,
   Chip,
   Stack,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Save as SaveIcon,
@@ -33,44 +33,44 @@ import {
   Edit as EditIcon,
   Delete as DeleteIcon,
   Description as FileTextIcon,
-} from '@mui/icons-material';
+} from "@mui/icons-material";
 
 export default function SoloParentForm() {
-  const apiBase = 'http://localhost:5000';
+  const apiBase = "http://localhost:5000";
 
   const [records, setRecords] = useState([]);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [editingId, setEditingId] = useState(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState('form');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [activeTab, setActiveTab] = useState("form");
+  const [searchTerm, setSearchTerm] = useState("");
 
   const [formData, setFormData] = useState({
-    name: '',
-    age: '',
-    address: '',
-    residentsSinceYear: '',
-    unwedSinceYear: '',
-    daughterName: '',
-    daughterAge: '',
-    daughterBirthday: '',
-    daughterLevel: '',
-    sonName: '',
-    sonAge: '',
-    sonBirthday: '',
-    sonLevel: '',
-    employmentStatus: '', // "Employed" or "Unemployed"
-    dateIssued: new Date().toISOString().split('T')[0],
+    name: "",
+    age: "",
+    address: "",
+    residentsSinceYear: "",
+    unwedSinceYear: "",
+    daughterName: "",
+    daughterAge: "",
+    daughterBirthday: "",
+    daughterLevel: "",
+    sonName: "",
+    sonAge: "",
+    sonBirthday: "",
+    sonLevel: "",
+    employmentStatus: "", // "Employed" or "Unemployed"
+    dateIssued: new Date().toISOString().split("T")[0],
   });
 
   const civilStatusOptions = [
-    'Single',
-    'Married',
-    'Widowed',
-    'Divorced',
-    'Separated',
+    "Single",
+    "Married",
+    "Widowed",
+    "Divorced",
+    "Separated",
   ];
-  const employmentOptions = ['Employed', 'Unemployed'];
+  const employmentOptions = ["Employed", "Unemployed"];
 
   useEffect(() => {
     loadRecords();
@@ -86,13 +86,13 @@ export default function SoloParentForm() {
               id: r.id,
               name: r.name,
               address: r.address,
-              birthday: r.birthday?.slice(0, 10) || '',
-              age: String(r.age ?? ''),
-              provincialAddress: r.provincial_address || '',
-              contactNo: r.contact_no || '',
+              birthday: r.birthday?.slice(0, 10) || "",
+              age: String(r.age ?? ""),
+              provincialAddress: r.provincial_address || "",
+              contactNo: r.contact_no || "",
               civilStatus: r.civil_status,
               requestReason: r.request_reason,
-              dateIssued: r.date_issued?.slice(0, 10) || '',
+              dateIssued: r.date_issued?.slice(0, 10) || "",
               dateCreated: r.date_created,
             }))
           : []
@@ -111,7 +111,7 @@ export default function SoloParentForm() {
       );
       setFormData({ ...formData, birthday, age: String(age) });
     } else {
-      setFormData({ ...formData, birthday: '', age: '' });
+      setFormData({ ...formData, birthday: "", age: "" });
     }
   }
 
@@ -138,39 +138,39 @@ export default function SoloParentForm() {
   async function handleCreate() {
     try {
       const res = await fetch(`${apiBase}/request-records`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toServerPayload(formData)),
       });
-      if (!res.ok) throw new Error('Create failed');
+      if (!res.ok) throw new Error("Create failed");
       const created = await res.json();
       const newRec = { ...formData, id: created.id };
       setRecords([newRec, ...records]);
       setSelectedRecord(newRec);
       resetForm();
-      setActiveTab('records');
+      setActiveTab("records");
     } catch (e) {
       console.error(e);
-      alert('Failed to create record');
+      alert("Failed to create record");
     }
   }
 
   async function handleUpdate() {
     try {
       const res = await fetch(`${apiBase}/request-records/${editingId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(toServerPayload(formData)),
       });
-      if (!res.ok) throw new Error('Update failed');
+      if (!res.ok) throw new Error("Update failed");
       const updated = { ...formData, id: editingId };
       setRecords(records.map((r) => (r.id === editingId ? updated : r)));
       setSelectedRecord(updated);
       resetForm();
-      setActiveTab('records');
+      setActiveTab("records");
     } catch (e) {
       console.error(e);
-      alert('Failed to update record');
+      alert("Failed to update record");
     }
   }
 
@@ -178,46 +178,46 @@ export default function SoloParentForm() {
     setFormData({ ...record });
     setEditingId(record.id);
     setIsFormOpen(true);
-    setActiveTab('form');
+    setActiveTab("form");
   }
 
   async function handleDelete(id) {
-    if (!window.confirm('Delete this record?')) return;
+    if (!window.confirm("Delete this record?")) return;
     try {
       const res = await fetch(`${apiBase}/request-records/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
       });
-      if (!res.ok) throw new Error('Delete failed');
+      if (!res.ok) throw new Error("Delete failed");
       setRecords(records.filter((r) => r.id !== id));
       if (selectedRecord?.id === id) setSelectedRecord(null);
     } catch (e) {
       console.error(e);
-      alert('Failed to delete record');
+      alert("Failed to delete record");
     }
   }
 
   function handleView(record) {
     setSelectedRecord(record);
-    setActiveTab('form');
+    setActiveTab("form");
   }
 
   function resetForm() {
     setFormData({
-      name: '',
-      age: '',
-      address: '',
-      residentsSinceYear: '',
-      unwedSinceYear: '',
-      daughterName: '',
-      daughterAge: '',
-      daughterBirthday: '',
-      daughterLevel: '',
-      sonName: '',
-      sonAge: '',
-      sonBirthday: '',
-      sonLevel: '',
-      employmentStatus: '',
-      dateIssued: new Date().toISOString().split('T')[0],
+      name: "",
+      age: "",
+      address: "",
+      residentsSinceYear: "",
+      unwedSinceYear: "",
+      daughterName: "",
+      daughterAge: "",
+      daughterBirthday: "",
+      daughterLevel: "",
+      sonName: "",
+      sonAge: "",
+      sonBirthday: "",
+      sonLevel: "",
+      employmentStatus: "",
+      dateIssued: new Date().toISOString().split("T")[0],
     });
     setEditingId(null);
     setIsFormOpen(false);
@@ -234,42 +234,42 @@ export default function SoloParentForm() {
         (r) =>
           r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           r.address.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (r.contactNo || '').includes(searchTerm)
+          (r.contactNo || "").includes(searchTerm)
       ),
     [records, searchTerm]
   );
 
   function formatDate(dateString) {
-    if (!dateString) return '';
+    if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   }
 
   function formatDate(dateString) {
-    if (!dateString) return '';
+    if (!dateString) return "";
 
     const date = new Date(dateString);
 
     const day = date.getDate();
-    const month = date.toLocaleString('en-US', { month: 'long' });
+    const month = date.toLocaleString("en-US", { month: "long" });
     const year = date.getFullYear();
 
     // Function to add ordinal suffix (st, nd, rd, th)
     const getOrdinal = (n) => {
-      if (n > 3 && n < 21) return 'th';
+      if (n > 3 && n < 21) return "th";
       switch (n % 10) {
         case 1:
-          return 'st';
+          return "st";
         case 2:
-          return 'nd';
+          return "nd";
         case 3:
-          return 'rd';
+          return "rd";
         default:
-          return 'th';
+          return "th";
       }
     };
 
@@ -277,21 +277,21 @@ export default function SoloParentForm() {
   }
 
   return (
-    <Box sx={{ minHeight: '100vh', bgcolor: 'grey.100', display: 'flex' }}>
+    <Box sx={{ minHeight: "100vh", bgcolor: "grey.100", display: "flex" }}>
       {/* LEFT: Certificate preview (previous layout) */}
-      <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
+      <Box sx={{ flex: 1, p: 2, overflow: "auto" }}>
         <Box
           sx={{
             margin: 0,
             padding: 0,
-            background: '#f2f2f2',
-            width: '100%',
-            minHeight: '100vh',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            overflow: 'auto',
-            border: '1px solid black',
+            background: "#f2f2f2",
+            width: "100%",
+            minHeight: "100vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "flex-start",
+            overflow: "auto",
+            border: "1px solid black",
             marginBottom: 2,
           }}
         >
@@ -299,72 +299,72 @@ export default function SoloParentForm() {
             style={{
               margin: 0,
               padding: 0,
-              background: '#f2f2f2',
-              width: '100%',
-              minHeight: '100vh',
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'flex-start',
-              overflow: 'auto',
+              background: "#f2f2f2",
+              width: "100%",
+              minHeight: "100vh",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "flex-start",
+              overflow: "auto",
             }}
           >
             <div
               style={{
-                position: 'relative',
-                width: '8.5in',
-                height: '11in',
-                margin: '20px auto',
-                boxShadow: '0 0 8px rgba(0,0,0,0.2)',
-                background: '#fff',
+                position: "relative",
+                width: "8.5in",
+                height: "11in",
+                margin: "20px auto",
+                boxShadow: "0 0 8px rgba(0,0,0,0.2)",
+                background: "#fff",
               }}
             >
               {/* Placeholder for Logos */}
               <div
                 style={{
-                  position: 'absolute',
-                  width: '90px',
-                  height: '100px',
-                  top: '28px',
-                  left: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '10px',
+                  position: "absolute",
+                  width: "90px",
+                  height: "100px",
+                  top: "28px",
+                  left: "32px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "10px",
                 }}
               >
                 <img
                   src={CaloocanLogo}
                   alt="City Logo"
                   style={{
-                    position: 'absolute',
-                    width: '90px',
-                    top: '20px',
-                    left: '32px',
+                    position: "absolute",
+                    width: "90px",
+                    top: "20px",
+                    left: "32px",
                   }}
                 />
               </div>
               <div
                 style={{
-                  position: 'absolute',
-                  width: '92px',
-                  height: '107px',
-                  top: '26px',
-                  right: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '10px',
-                  color: '#999',
+                  position: "absolute",
+                  width: "92px",
+                  height: "107px",
+                  top: "26px",
+                  right: "32px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "10px",
+                  color: "#999",
                 }}
               >
                 <img
                   src={Logo145}
                   alt="Logo 145"
                   style={{
-                    position: 'absolute',
-                    width: '110px',
-                    top: '5px',
-                    right: '5px',
+                    position: "absolute",
+                    width: "110px",
+                    top: "5px",
+                    right: "5px",
                   }}
                 />
               </div>
@@ -372,19 +372,19 @@ export default function SoloParentForm() {
               {/* Watermark placeholder */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: '200px',
-                  left: '50%',
-                  transform: 'translateX(-50%)',
+                  position: "absolute",
+                  top: "200px",
+                  left: "50%",
+                  transform: "translateX(-50%)",
                   opacity: 0.2,
-                  width: '500px',
-                  height: '500px',
-                  border: '2px dashed #ccc',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '14px',
-                  pointerEvents: 'none',
+                  width: "500px",
+                  height: "500px",
+                  border: "2px dashed #ccc",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "14px",
+                  pointerEvents: "none",
                   zIndex: 0,
                 }}
               >
@@ -394,12 +394,12 @@ export default function SoloParentForm() {
               {/* Header */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: '70px',
-                  width: '100%',
-                  textAlign: 'center',
-                  fontSize: '14pt',
-                  fontWeight: 'bold',
+                  position: "absolute",
+                  top: "70px",
+                  width: "100%",
+                  textAlign: "center",
+                  fontSize: "14pt",
+                  fontWeight: "bold",
                   lineHeight: 1.5,
                 }}
               >
@@ -410,21 +410,21 @@ export default function SoloParentForm() {
                 >
                   Republic Of the Philippines
                 </div>
-                <div style={{ fontSize: '13pt' }}>City of Caloocan</div>
+                <div style={{ fontSize: "13pt" }}>City of Caloocan</div>
                 <div
                   style={{
-                    fontSize: '12pt',
-                    marginTop: '4px',
-                    fontFamily: 'Bodoni MT Black',
+                    fontSize: "12pt",
+                    marginTop: "4px",
+                    fontFamily: "Bodoni MT Black",
                   }}
                 >
                   BARANGAY 145 ZONE 13 DISTRICT 1
                 </div>
                 <div
                   style={{
-                    fontSize: '11pt',
-                    marginTop: '8px',
-                    fontFamily: 'Bodoni MT Black',
+                    fontSize: "11pt",
+                    marginTop: "8px",
+                    fontFamily: "Bodoni MT Black",
                   }}
                 >
                   OFFICE OF THE BARANGAY CAPTAIN
@@ -434,15 +434,15 @@ export default function SoloParentForm() {
               {/* Title */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: '190px',
-                  width: '100%',
-                  textAlign: 'center',
+                  position: "absolute",
+                  top: "190px",
+                  width: "100%",
+                  textAlign: "center",
                   fontFamily: 'Bodoni MT Black, "Times New Roman", serif',
-                  fontSize: '18pt',
-                  fontWeight: 'bold',
-                  textDecoration: 'underline',
-                  letterSpacing: '1px',
+                  fontSize: "18pt",
+                  fontWeight: "bold",
+                  textDecoration: "underline",
+                  letterSpacing: "1px",
                 }}
               >
                 BARANGAY CERTIFICATION
@@ -451,27 +451,27 @@ export default function SoloParentForm() {
               {/* Main Content */}
               <div
                 style={{
-                  position: 'absolute',
-                  top: '270px',
-                  left: '60px',
-                  width: '680px',
+                  position: "absolute",
+                  top: "270px",
+                  left: "60px",
+                  width: "680px",
                   fontFamily: '"Times New Roman", serif',
-                  fontSize: '12pt',
+                  fontSize: "12pt",
                   lineHeight: 1.8,
-                  textAlign: 'justify',
+                  textAlign: "justify",
                   zIndex: 1,
                 }}
               >
-                <p style={{ marginBottom: '20px' }}>
+                <p style={{ marginBottom: "20px" }}>
                   <strong>
-                    This is to certify that, {display.name || 'Name'},{' '}
-                    {display.age || 'Age'} y/o is a Bonafide resident of{' '}
-                    {display.address || 'Address'} Barangay 145 of this city,
-                    since {display.yearOfResidency || 'Year'}.
+                    This is to certify that, {display.name || "Name"},{" "}
+                    {display.age || "Age"} y/o is a Bonafide resident of{" "}
+                    {display.address || "Address"} Barangay 145 of this city,
+                    since {display.yearOfResidency || "Year"}.
                   </strong>
                 </p>
 
-                <p style={{ marginBottom: '20px' }}>
+                <p style={{ marginBottom: "20px" }}>
                   <strong>
                     Upon verification, she is currently not in any form of
                     relationship and is qualified to apply for a Solo Parent ID
@@ -480,43 +480,43 @@ export default function SoloParentForm() {
                   </strong>
                 </p>
 
-                <p style={{ marginBottom: '20px' }}>
+                <p style={{ marginBottom: "20px" }}>
                   <strong>
-                    Ms. {display.name || 'Name'}, is UNWED, since,{' '}
-                    {display.unwedYear || 'Year'}.
+                    Ms. {display.name || "Name"}, is UNWED, since,{" "}
+                    {display.unwedYear || "Year"}.
                   </strong>
                 </p>
 
-                <p style={{ marginBottom: '20px' }}>
+                <p style={{ marginBottom: "20px" }}>
                   <strong>
-                    Moreover {display.name || 'Name'} has two qualified
-                    dependent living with her, her daughter{' '}
-                    {display.daughterName || ' Daughter Name'},{' '}
-                    {display.daughterAge || 'Daughter Age'} y/o, birthday-
-                    {display.daughterBirthday || 'Daugther Birthday'}; her son{' '}
-                    {display.sonName || 'Son Name'},{' '}
-                    {display.sonAge || 'Son Age'} y/o, birthday-
-                    {display.sonBirthday || 'Son Birthday'}, Kinder student.
+                    Moreover {display.name || "Name"} has two qualified
+                    dependent living with her, her daughter{" "}
+                    {display.daughterName || " Daughter Name"},{" "}
+                    {display.daughterAge || "Daughter Age"} y/o, birthday-
+                    {display.daughterBirthday || "Daugther Birthday"}; her son{" "}
+                    {display.sonName || "Son Name"},{" "}
+                    {display.sonAge || "Son Age"} y/o, birthday-
+                    {display.sonBirthday || "Son Birthday"}, Kinder student.
                   </strong>
                 </p>
 
-                <p style={{ marginBottom: '20px' }}>
-                  <strong>{display.name || 'Name'} is unemployed.</strong>
+                <p style={{ marginBottom: "20px" }}>
+                  <strong>{display.name || "Name"} is unemployed.</strong>
                 </p>
 
-                <p style={{ marginBottom: '30px' }}>
+                <p style={{ marginBottom: "30px" }}>
                   <strong>
                     This certification is issued solely for the purpose of
-                    authentication of Ms. {display.name || 'Name'},
+                    authentication of Ms. {display.name || "Name"},
                     qualification to apply for a Solo Parent ID and receive all
                     benefits that go with it.
                   </strong>
                 </p>
 
-                <p style={{ marginBottom: '40px' }}>
+                <p style={{ marginBottom: "40px" }}>
                   <strong>
-                    Issued this{' '}
-                    {display.dateIssued ? formatDate(display.dateIssued) : ''}.
+                    Issued this{" "}
+                    {display.dateIssued ? formatDate(display.dateIssued) : ""}.
                   </strong>
                 </p>
               </div>
@@ -524,49 +524,49 @@ export default function SoloParentForm() {
               {/* Bottom Section */}
               <div
                 style={{
-                  position: 'absolute',
-                  bottom: '80px',
-                  left: '60px',
-                  width: '680px',
+                  position: "absolute",
+                  bottom: "80px",
+                  left: "60px",
+                  width: "680px",
                   fontFamily: '"Times New Roman", serif',
-                  fontSize: '12pt',
-                  fontWeight: 'bold',
+                  fontSize: "12pt",
+                  fontWeight: "bold",
                 }}
               >
-                <div style={{ marginBottom: '50px' }}>
+                <div style={{ marginBottom: "50px" }}>
                   Brgy. SOLO PARENT Focal Person/Barangay Officials
                 </div>
 
                 {/* Signatures */}
                 <div
                   style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginTop: '50px',
+                    display: "flex",
+                    justifyContent: "space-between",
+                    marginTop: "50px",
                   }}
                 >
-                  <div style={{ textAlign: 'center', width: '300px' }}>
+                  <div style={{ textAlign: "center", width: "300px" }}>
                     <div
                       style={{
-                        borderTop: '1px solid #000',
-                        width: '80%',
-                        margin: '0 auto 8px auto',
+                        borderTop: "1px solid #000",
+                        width: "80%",
+                        margin: "0 auto 8px auto",
                       }}
                     ></div>
-                    <div style={{ fontWeight: 'bold' }}>ROSALINA P. ANORE</div>
-                    <div style={{ fontWeight: 'bold' }}>Brgy. Secretary</div>
+                    <div style={{ fontWeight: "bold" }}>ROSALINA P. ANORE</div>
+                    <div style={{ fontWeight: "bold" }}>Brgy. Secretary</div>
                   </div>
 
-                  <div style={{ textAlign: 'center', width: '300px' }}>
+                  <div style={{ textAlign: "center", width: "300px" }}>
                     <div
                       style={{
-                        borderTop: '1px solid #000',
-                        width: '80%',
-                        margin: '0 auto 8px auto',
+                        borderTop: "1px solid #000",
+                        width: "80%",
+                        margin: "0 auto 8px auto",
                       }}
                     ></div>
-                    <div style={{ fontWeight: 'bold' }}>ARNOLD DONDONAYOS</div>
-                    <div style={{ fontWeight: 'bold' }}>Barangay Captain</div>
+                    <div style={{ fontWeight: "bold" }}>ARNOLD DONDONAYOS</div>
+                    <div style={{ fontWeight: "bold" }}>Barangay Captain</div>
                   </div>
                 </div>
               </div>
@@ -578,41 +578,41 @@ export default function SoloParentForm() {
       </Box>
 
       {/* RIGHT: CRUD container */}
-      <Container maxWidth="sm" disableGutters sx={{ height: '100vh' }}>
+      <Container maxWidth="sm" disableGutters sx={{ height: "100vh" }}>
         <Paper
           sx={{
-            bgcolor: 'grey.50',
+            bgcolor: "grey.50",
             borderLeft: 1,
-            borderColor: 'grey.300',
-            display: 'flex',
-            flexDirection: 'column',
+            borderColor: "grey.300",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {/* Sticky Header */}
           <Paper
             elevation={0}
             sx={{
-              position: 'sticky',
+              position: "sticky",
               paddingTop: 5,
               zIndex: 10,
-              bgcolor: 'rgba(255, 255, 255, 0.9)',
-              backdropFilter: 'blur(8px)',
+              bgcolor: "rgba(255, 255, 255, 0.9)",
+              backdropFilter: "blur(8px)",
               borderBottom: 1,
-              borderColor: 'grey.300',
+              borderColor: "grey.300",
             }}
           >
             <Box
               sx={{
                 px: 2,
                 py: 1.5,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
               <Typography
                 variant="h6"
-                sx={{ fontWeight: 800, color: '#445C3C' }}
+                sx={{ fontWeight: 800, color: "#445C3C" }}
               >
                 Barangay Clearance
               </Typography>
@@ -623,16 +623,16 @@ export default function SoloParentForm() {
                 onClick={() => {
                   resetForm();
                   setIsFormOpen(true);
-                  setActiveTab('form');
+                  setActiveTab("form");
                 }}
                 sx={{
-                  textTransform: 'none',
-                  fontSize: '0.875rem',
-                  color: 'grey.700',
-                  borderColor: 'grey.400',
-                  '&:hover': {
-                    bgcolor: '#445C3C',
-                    color: '#ffffff',
+                  textTransform: "none",
+                  fontSize: "0.875rem",
+                  color: "grey.700",
+                  borderColor: "grey.400",
+                  "&:hover": {
+                    bgcolor: "#445C3C",
+                    color: "#ffffff",
                   },
                 }}
               >
@@ -641,51 +641,51 @@ export default function SoloParentForm() {
             </Box>
 
             <Box sx={{ px: 1, pb: 1 }}>
-              <Paper sx={{ p: 0.5, bgcolor: 'grey.200', borderRadius: 2 }}>
+              <Paper sx={{ p: 0.5, bgcolor: "grey.200", borderRadius: 2 }}>
                 <Box
                   sx={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
+                    display: "grid",
+                    gridTemplateColumns: "1fr 1fr",
                     gap: 0.5,
                   }}
                 >
                   <Button
-                    onClick={() => setActiveTab('form')}
-                    variant={activeTab === 'form' ? 'contained' : 'text'}
+                    onClick={() => setActiveTab("form")}
+                    variant={activeTab === "form" ? "contained" : "text"}
                     sx={{
-                      textTransform: 'none',
+                      textTransform: "none",
                       fontWeight: 500,
-                      fontSize: '0.875rem',
+                      fontSize: "0.875rem",
                       py: 1,
-                      bgcolor: activeTab === 'form' ? 'white' : 'transparent',
-                      color: activeTab === 'form' ? 'success.main' : 'grey.600',
-                      boxShadow: activeTab === 'form' ? 1 : 0,
-                      '&:hover': {
-                        bgcolor: activeTab === 'form' ? 'white' : 'grey.300',
+                      bgcolor: activeTab === "form" ? "white" : "transparent",
+                      color: activeTab === "form" ? "success.main" : "grey.600",
+                      boxShadow: activeTab === "form" ? 1 : 0,
+                      "&:hover": {
+                        bgcolor: activeTab === "form" ? "white" : "grey.300",
                         color:
-                          activeTab === 'form' ? 'success.main' : 'grey.800',
+                          activeTab === "form" ? "success.main" : "grey.800",
                       },
                     }}
                   >
                     Form
                   </Button>
                   <Button
-                    onClick={() => setActiveTab('records')}
-                    variant={activeTab === 'records' ? 'contained' : 'text'}
+                    onClick={() => setActiveTab("records")}
+                    variant={activeTab === "records" ? "contained" : "text"}
                     sx={{
-                      textTransform: 'none',
+                      textTransform: "none",
                       fontWeight: 500,
-                      fontSize: '0.875rem',
+                      fontSize: "0.875rem",
                       py: 1,
                       bgcolor:
-                        activeTab === 'records' ? 'white' : 'transparent',
+                        activeTab === "records" ? "white" : "transparent",
                       color:
-                        activeTab === 'records' ? 'success.main' : 'grey.600',
-                      boxShadow: activeTab === 'records' ? 1 : 0,
-                      '&:hover': {
-                        bgcolor: activeTab === 'records' ? 'white' : 'grey.300',
+                        activeTab === "records" ? "success.main" : "grey.600",
+                      boxShadow: activeTab === "records" ? 1 : 0,
+                      "&:hover": {
+                        bgcolor: activeTab === "records" ? "white" : "grey.300",
                         color:
-                          activeTab === 'records' ? 'success.main' : 'grey.800',
+                          activeTab === "records" ? "success.main" : "grey.800",
                       },
                     }}
                   >
@@ -697,31 +697,31 @@ export default function SoloParentForm() {
           </Paper>
 
           {/* Form Tab */}
-          {activeTab === 'form' && (
-            <Box sx={{ flex: 1, p: 2, overflow: 'auto' }}>
+          {activeTab === "form" && (
+            <Box sx={{ flex: 1, p: 2, overflow: "auto" }}>
               <Card sx={{ borderRadius: 3, boxShadow: 1 }}>
                 <CardHeader
                   title={
                     <Typography
                       variant="h6"
                       sx={{
-                        fontSize: '1rem',
+                        fontSize: "1rem",
                         fontWeight: 600,
-                        color: 'grey.800',
+                        color: "grey.800",
                       }}
                     >
-                      {editingId ? 'Edit Record' : 'New Clearance Record'}
+                      {editingId ? "Edit Record" : "New Clearance Record"}
                     </Typography>
                   }
                   subheader={
                     selectedRecord &&
                     !editingId && (
-                      <Typography variant="caption" sx={{ color: 'grey.500' }}>
+                      <Typography variant="caption" sx={{ color: "grey.500" }}>
                         Viewing: {selectedRecord.name}
                       </Typography>
                     )
                   }
-                  sx={{ borderBottom: 1, borderColor: 'grey.200' }}
+                  sx={{ borderBottom: 1, borderColor: "grey.200" }}
                 />
 
                 <CardContent>
@@ -736,16 +736,16 @@ export default function SoloParentForm() {
                         setFormData({ ...formData, name: e.target.value })
                       }
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: 'success.main',
+                        "& .MuiOutlinedInput-root": {
+                          "&:hover fieldset": {
+                            borderColor: "success.main",
                           },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'success.main',
+                          "&.Mui-focused fieldset": {
+                            borderColor: "success.main",
                           },
                         },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: 'success.main',
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "success.main",
                         },
                       }}
                     />
@@ -762,16 +762,16 @@ export default function SoloParentForm() {
                         setFormData({ ...formData, address: e.target.value })
                       }
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: 'success.main',
+                        "& .MuiOutlinedInput-root": {
+                          "&:hover fieldset": {
+                            borderColor: "success.main",
                           },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'success.main',
+                          "&.Mui-focused fieldset": {
+                            borderColor: "success.main",
                           },
                         },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: 'success.main',
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "success.main",
                         },
                       }}
                     />
@@ -788,16 +788,16 @@ export default function SoloParentForm() {
                           value={formData.birthday}
                           onChange={(e) => handleBirthdayChange(e.target.value)}
                           sx={{
-                            '& .MuiOutlinedInput-root': {
-                              '&:hover fieldset': {
-                                borderColor: 'success.main',
+                            "& .MuiOutlinedInput-root": {
+                              "&:hover fieldset": {
+                                borderColor: "success.main",
                               },
-                              '&.Mui-focused fieldset': {
-                                borderColor: 'success.main',
+                              "&.Mui-focused fieldset": {
+                                borderColor: "success.main",
                               },
                             },
-                            '& .MuiInputLabel-root.Mui-focused': {
-                              color: 'success.main',
+                            "& .MuiInputLabel-root.Mui-focused": {
+                              color: "success.main",
                             },
                           }}
                         />
@@ -811,8 +811,8 @@ export default function SoloParentForm() {
                           value={formData.age}
                           InputProps={{ readOnly: true }}
                           sx={{
-                            '& .MuiOutlinedInput-root': {
-                              bgcolor: 'grey.100',
+                            "& .MuiOutlinedInput-root": {
+                              bgcolor: "grey.100",
                             },
                           }}
                         />
@@ -832,16 +832,16 @@ export default function SoloParentForm() {
                         })
                       }
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: 'success.main',
+                        "& .MuiOutlinedInput-root": {
+                          "&:hover fieldset": {
+                            borderColor: "success.main",
                           },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'success.main',
+                          "&.Mui-focused fieldset": {
+                            borderColor: "success.main",
                           },
                         },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: 'success.main',
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "success.main",
                         },
                       }}
                     />
@@ -860,16 +860,16 @@ export default function SoloParentForm() {
                         })
                       }
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: 'success.main',
+                        "& .MuiOutlinedInput-root": {
+                          "&:hover fieldset": {
+                            borderColor: "success.main",
                           },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'success.main',
+                          "&.Mui-focused fieldset": {
+                            borderColor: "success.main",
                           },
                         },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: 'success.main',
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "success.main",
                         },
                       }}
                     />
@@ -878,16 +878,16 @@ export default function SoloParentForm() {
                       fullWidth
                       size="small"
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: 'success.main',
+                        "& .MuiOutlinedInput-root": {
+                          "&:hover fieldset": {
+                            borderColor: "success.main",
                           },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'success.main',
+                          "&.Mui-focused fieldset": {
+                            borderColor: "success.main",
                           },
                         },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: 'success.main',
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "success.main",
                         },
                       }}
                     >
@@ -926,16 +926,16 @@ export default function SoloParentForm() {
                         })
                       }
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: 'success.main',
+                        "& .MuiOutlinedInput-root": {
+                          "&:hover fieldset": {
+                            borderColor: "success.main",
                           },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'success.main',
+                          "&.Mui-focused fieldset": {
+                            borderColor: "success.main",
                           },
                         },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: 'success.main',
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "success.main",
                         },
                       }}
                     />
@@ -952,21 +952,21 @@ export default function SoloParentForm() {
                         setFormData({ ...formData, dateIssued: e.target.value })
                       }
                       sx={{
-                        '& .MuiOutlinedInput-root': {
-                          '&:hover fieldset': {
-                            borderColor: 'success.main',
+                        "& .MuiOutlinedInput-root": {
+                          "&:hover fieldset": {
+                            borderColor: "success.main",
                           },
-                          '&.Mui-focused fieldset': {
-                            borderColor: 'success.main',
+                          "&.Mui-focused fieldset": {
+                            borderColor: "success.main",
                           },
                         },
-                        '& .MuiInputLabel-root.Mui-focused': {
-                          color: 'success.main',
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "success.main",
                         },
                       }}
                     />
 
-                    <Box sx={{ display: 'flex', gap: 1, pt: 1 }}>
+                    <Box sx={{ display: "flex", gap: 1, pt: 1 }}>
                       <Button
                         onClick={handleSubmit}
                         variant="contained"
@@ -974,17 +974,17 @@ export default function SoloParentForm() {
                         fullWidth
                         sx={{
                           background:
-                            'linear-gradient(45deg, #2e7d32, #388e3c)',
-                          '&:hover': {
+                            "linear-gradient(45deg, #2e7d32, #388e3c)",
+                          "&:hover": {
                             background:
-                              'linear-gradient(45deg, #1b5e20, #2e7d32)',
+                              "linear-gradient(45deg, #1b5e20, #2e7d32)",
                           },
                           fontWeight: 500,
                           py: 1.25,
-                          textTransform: 'none',
+                          textTransform: "none",
                         }}
                       >
-                        {editingId ? 'Update' : 'Save'}
+                        {editingId ? "Update" : "Save"}
                       </Button>
                       {(editingId || isFormOpen) && (
                         <Button
@@ -992,15 +992,15 @@ export default function SoloParentForm() {
                           variant="outlined"
                           startIcon={<CloseIcon />}
                           sx={{
-                            color: 'grey.700',
-                            borderColor: 'grey.400',
-                            '&:hover': {
-                              bgcolor: 'grey.100',
-                              borderColor: 'grey.400',
+                            color: "grey.700",
+                            borderColor: "grey.400",
+                            "&:hover": {
+                              bgcolor: "grey.100",
+                              borderColor: "grey.400",
                             },
                             py: 1.25,
                             px: 2,
-                            textTransform: 'none',
+                            textTransform: "none",
                           }}
                         >
                           Cancel
@@ -1014,8 +1014,8 @@ export default function SoloParentForm() {
           )}
 
           {/* Records Tab */}
-          {activeTab === 'records' && (
-            <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+          {activeTab === "records" && (
+            <Box sx={{ flex: 1, display: "flex", flexDirection: "column" }}>
               <Box sx={{ p: 1.5 }}>
                 <TextField
                   fullWidth
@@ -1026,28 +1026,28 @@ export default function SoloParentForm() {
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
-                        <SearchIcon sx={{ color: 'grey.400', fontSize: 20 }} />
+                        <SearchIcon sx={{ color: "grey.400", fontSize: 20 }} />
                       </InputAdornment>
                     ),
                   }}
                   sx={{
-                    '& .MuiOutlinedInput-root': {
-                      '&:hover fieldset': {
-                        borderColor: 'success.main',
+                    "& .MuiOutlinedInput-root": {
+                      "&:hover fieldset": {
+                        borderColor: "success.main",
                       },
-                      '&.Mui-focused fieldset': {
-                        borderColor: 'success.main',
+                      "&.Mui-focused fieldset": {
+                        borderColor: "success.main",
                       },
                     },
                   }}
                 />
               </Box>
 
-              <Box sx={{ flex: 1, overflow: 'auto', px: 1.5, pb: 1.5 }}>
+              <Box sx={{ flex: 1, overflow: "auto", px: 1.5, pb: 1.5 }}>
                 {filteredRecords.length === 0 ? (
-                  <Paper sx={{ p: 3, textAlign: 'center', color: 'grey.500' }}>
+                  <Paper sx={{ p: 3, textAlign: "center", color: "grey.500" }}>
                     <Typography variant="body2">
-                      {searchTerm ? 'No records found' : 'No records yet'}
+                      {searchTerm ? "No records found" : "No records yet"}
                     </Typography>
                   </Paper>
                 ) : (
@@ -1057,20 +1057,20 @@ export default function SoloParentForm() {
                         key={record.id}
                         sx={{
                           boxShadow: 1,
-                          '&:hover': {
+                          "&:hover": {
                             boxShadow: 2,
                           },
-                          transition: 'box-shadow 0.2s',
+                          transition: "box-shadow 0.2s",
                         }}
                       >
                         <CardContent
-                          sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}
+                          sx={{ p: 1.5, "&:last-child": { pb: 1.5 } }}
                         >
                           <Box
                             sx={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'flex-start',
+                              display: "flex",
+                              justifyContent: "space-between",
+                              alignItems: "flex-start",
                             }}
                           >
                             <Box sx={{ flex: 1 }}>
@@ -1078,7 +1078,7 @@ export default function SoloParentForm() {
                                 variant="body2"
                                 sx={{
                                   fontWeight: 600,
-                                  color: 'grey.900',
+                                  color: "grey.900",
                                   mb: 0.5,
                                 }}
                               >
@@ -1087,8 +1087,8 @@ export default function SoloParentForm() {
                               <Typography
                                 variant="caption"
                                 sx={{
-                                  color: 'grey.600',
-                                  display: 'block',
+                                  color: "grey.600",
+                                  display: "block",
                                   mb: 0.5,
                                 }}
                               >
@@ -1096,19 +1096,19 @@ export default function SoloParentForm() {
                               </Typography>
                               <Box
                                 sx={{
-                                  display: 'flex',
-                                  flexWrap: 'wrap',
+                                  display: "flex",
+                                  flexWrap: "wrap",
                                   gap: 0.5,
-                                  alignItems: 'center',
+                                  alignItems: "center",
                                 }}
                               >
                                 <Chip
                                   label={record.civilStatus}
                                   size="small"
                                   sx={{
-                                    bgcolor: 'grey.100',
-                                    color: 'grey.700',
-                                    fontSize: '0.625rem',
+                                    bgcolor: "grey.100",
+                                    color: "grey.700",
+                                    fontSize: "0.625rem",
                                     height: 20,
                                   }}
                                 />
@@ -1116,8 +1116,8 @@ export default function SoloParentForm() {
                                   <Typography
                                     variant="caption"
                                     sx={{
-                                      color: 'grey.500',
-                                      fontSize: '0.625rem',
+                                      color: "grey.500",
+                                      fontSize: "0.625rem",
                                     }}
                                   >
                                     {record.contactNo}
@@ -1126,21 +1126,21 @@ export default function SoloParentForm() {
                                 <Typography
                                   variant="caption"
                                   sx={{
-                                    color: 'grey.400',
-                                    fontSize: '0.625rem',
+                                    color: "grey.400",
+                                    fontSize: "0.625rem",
                                   }}
                                 >
                                   Issued: {formatDate(record.dateIssued)}
                                 </Typography>
                               </Box>
                             </Box>
-                            <Box sx={{ display: 'flex', gap: 0.5, ml: 1 }}>
+                            <Box sx={{ display: "flex", gap: 0.5, ml: 1 }}>
                               <IconButton
                                 size="small"
                                 onClick={() => handleView(record)}
                                 sx={{
-                                  color: 'info.main',
-                                  '&:hover': { bgcolor: 'info.lighter' },
+                                  color: "info.main",
+                                  "&:hover": { bgcolor: "info.lighter" },
                                   p: 0.75,
                                 }}
                                 title="View"
@@ -1151,8 +1151,8 @@ export default function SoloParentForm() {
                                 size="small"
                                 onClick={() => handleEdit(record)}
                                 sx={{
-                                  color: 'success.main',
-                                  '&:hover': { bgcolor: 'success.lighter' },
+                                  color: "success.main",
+                                  "&:hover": { bgcolor: "success.lighter" },
                                   p: 0.75,
                                 }}
                                 title="Edit"
@@ -1163,8 +1163,8 @@ export default function SoloParentForm() {
                                 size="small"
                                 onClick={() => handleDelete(record.id)}
                                 sx={{
-                                  color: 'error.main',
-                                  '&:hover': { bgcolor: 'error.lighter' },
+                                  color: "error.main",
+                                  "&:hover": { bgcolor: "error.lighter" },
                                   p: 0.75,
                                 }}
                                 title="Delete"

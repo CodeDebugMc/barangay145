@@ -1,9 +1,10 @@
 // server.js
-const express = require('express');
-const cors = require('cors');
-const mysql = require('mysql2/promise');
-const bcrypt = require('bcryptjs');
-const crypto = require('crypto');
+const express = require("express");
+const cors = require("cors");
+const mysql = require("mysql2/promise");
+const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
+const { error } = require("console");
 
 const app = express();
 const PORT = 5000;
@@ -20,22 +21,22 @@ const authenticateUser = async (req, res, next) => {
     if (!username || !password) {
       return res
         .status(400)
-        .json({ error: 'Username and password are required' });
+        .json({ error: "Username and password are required" });
     }
 
-    const [rows] = await pool.query('SELECT * FROM users WHERE username = ?', [
+    const [rows] = await pool.query("SELECT * FROM users WHERE username = ?", [
       username,
     ]);
 
     if (rows.length === 0) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     const user = rows[0];
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
-      return res.status(401).json({ error: 'Invalid credentials' });
+      return res.status(401).json({ error: "Invalid credentials" });
     }
 
     req.user = {
@@ -47,8 +48,8 @@ const authenticateUser = async (req, res, next) => {
 
     next();
   } catch (error) {
-    console.error('Authentication error:', error);
-    res.status(500).json({ error: 'Authentication failed' });
+    console.error("Authentication error:", error);
+    res.status(500).json({ error: "Authentication failed" });
   }
 };
 
@@ -56,14 +57,14 @@ const authenticateUser = async (req, res, next) => {
 const requireRole = (roles) => {
   return (req, res, next) => {
     if (!req.user) {
-      return res.status(401).json({ error: 'Authentication required' });
+      return res.status(401).json({ error: "Authentication required" });
     }
 
     const userRole = req.user.role;
     const allowedRoles = Array.isArray(roles) ? roles : [roles];
 
     if (!allowedRoles.includes(userRole)) {
-      return res.status(403).json({ error: 'Insufficient permissions' });
+      return res.status(403).json({ error: "Insufficient permissions" });
     }
 
     next();
@@ -72,10 +73,10 @@ const requireRole = (roles) => {
 
 // ✅ MySQL Connection (Pool)
 const pool = mysql.createPool({
-  host: 'localhost',
-  user: 'root',
-  password: '',
-  database: 'brgy145',
+  host: "localhost",
+  user: "root",
+  password: "",
+  database: "brgy145",
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0,
@@ -89,13 +90,13 @@ function generateDocumentHash(certificateData) {
     name: certificateData.full_name,
     dateIssued: certificateData.date_issued,
     transactionNumber: certificateData.transaction_number,
-    type: certificateData.type || 'indigency',
+    type: certificateData.type || "indigency",
   });
 
   return crypto
-    .createHash('sha256')
+    .createHash("sha256")
     .update(dataString)
-    .digest('hex')
+    .digest("hex")
     .substring(0, 16);
 }
 
@@ -103,14 +104,14 @@ function generateDocumentHash(certificateData) {
 function generateTransactionNumber() {
   const date = new Date();
   const year = date.getFullYear().toString().slice(-2);
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const seconds = date.getSeconds().toString().padStart(2, "0");
   const random = Math.floor(Math.random() * 1000)
     .toString()
-    .padStart(3, '0');
+    .padStart(3, "0");
   return `IND-${year}${month}${day}${hours}${minutes}${seconds}-${random}`;
 }
 
@@ -118,22 +119,22 @@ function generateTransactionNumber() {
 function generateTransactionNumberForType(type) {
   const date = new Date();
   const year = date.getFullYear().toString().slice(-2);
-  const month = (date.getMonth() + 1).toString().padStart(2, '0');
-  const day = date.getDate().toString().padStart(2, '0');
-  const hours = date.getHours().toString().padStart(2, '0');
-  const minutes = date.getMinutes().toString().padStart(2, '0');
-  const seconds = date.getSeconds().toString().padStart(2, '0');
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+  const seconds = date.getSeconds().toString().padStart(2, "0");
   const random = Math.floor(Math.random() * 1000)
     .toString()
-    .padStart(3, '0');
+    .padStart(3, "0");
   return `${type}-${year}${month}${day}${hours}${minutes}${seconds}-${random}`;
 }
 
 /**
  * ROOT
  */
-app.get('/', (req, res) => {
-  res.json({ message: 'Welcome to Barangay 145 API 🚀' });
+app.get("/", (req, res) => {
+  res.json({ message: "Welcome to Barangay 145 API 🚀" });
 });
 
 /**
@@ -141,7 +142,7 @@ app.get('/', (req, res) => {
  */
 
 // API endpoint to verify certificate (for JSON response)
-app.get('/verify/indigency/:id', async (req, res) => {
+app.get("/verify/indigency/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { hash } = req.query;
@@ -158,7 +159,7 @@ app.get('/verify/indigency/:id', async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({
         valid: false,
-        message: 'Certificate not found or has been revoked',
+        message: "Certificate not found or has been revoked",
       });
     }
 
@@ -169,13 +170,13 @@ app.get('/verify/indigency/:id', async (req, res) => {
       return res.status(400).json({
         valid: false,
         message:
-          'Certificate hash mismatch - document may have been tampered with',
+          "Certificate hash mismatch - document may have been tampered with",
       });
     }
 
     res.json({
       valid: true,
-      message: 'Certificate is authentic',
+      message: "Certificate is authentic",
       certificate: {
         id: certificate.indigency_id,
         transaction_number: certificate.transaction_number,
@@ -191,13 +192,13 @@ app.get('/verify/indigency/:id', async (req, res) => {
     console.error(err);
     res.status(500).json({
       valid: false,
-      message: 'Verification failed due to server error',
+      message: "Verification failed due to server error",
     });
   }
 });
 
 // HTML verification page (for QR code scanning)
-app.get('/verify/:id', async (req, res) => {
+app.get("/verify/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { hash } = req.query;
@@ -335,15 +336,15 @@ app.get('/verify/:id', async (req, res) => {
         </style>
       </head>
       <body>
-        <div class="container ${isValid ? 'valid' : 'invalid'}">
+        <div class="container ${isValid ? "valid" : "invalid"}">
           <div class="header">
             <div class="logo-text">BARANGAY 145 ZONE 13 DIST. 1</div>
             <div class="logo-text">CITY OF CALOOCAN</div>
             <h1>Certificate Verification</h1>
           </div>
          
-          <div class="status ${isValid ? 'valid-status' : 'invalid-status'}">
-            ${isValid ? '✓ CERTIFICATE IS AUTHENTIC' : '⚠️ VERIFICATION FAILED'}
+          <div class="status ${isValid ? "valid-status" : "invalid-status"}">
+            ${isValid ? "✓ CERTIFICATE IS AUTHENTIC" : "⚠️ VERIFICATION FAILED"}
           </div>
          
           ${
@@ -362,7 +363,7 @@ app.get('/verify/:id', async (req, res) => {
               <div class="detail-row">
                 <span class="label">Transaction Number:</span>
                 <span class="value transaction-number">${
-                  certificate.transaction_number || 'N/A'
+                  certificate.transaction_number || "N/A"
                 }</span>
               </div>
               <div class="detail-row">
@@ -381,10 +382,10 @@ app.get('/verify/:id', async (req, res) => {
                 <span class="label">Date Issued:</span>
                 <span class="value">${new Date(
                   certificate.date_issued
-                ).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
+                ).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
                 })}</span>
               </div>
               <div class="detail-row">
@@ -397,8 +398,8 @@ app.get('/verify/:id', async (req, res) => {
             <p style="text-align: center; color: #721c24;">
               ${
                 hash
-                  ? 'The certificate hash does not match our records. This document may have been tampered with.'
-                  : 'No verification hash provided.'
+                  ? "The certificate hash does not match our records. This document may have been tampered with."
+                  : "No verification hash provided."
               }
             </p>
             <div class="details">
@@ -413,7 +414,7 @@ app.get('/verify/:id', async (req, res) => {
                   certificate.indigency_id
                 }<br>
                 <strong>Transaction Number:</strong> ${
-                  certificate.transaction_number || 'N/A'
+                  certificate.transaction_number || "N/A"
                 }<br>
                 <strong>Name on Record:</strong> ${certificate.full_name}
               </p>
@@ -431,12 +432,12 @@ app.get('/verify/:id', async (req, res) => {
     `);
   } catch (err) {
     console.error(err);
-    res.status(500).send('Verification system error');
+    res.status(500).send("Verification system error");
   }
 });
 
 // Get verification hash for a certificate
-app.get('/api/indigency/:id/hash', async (req, res) => {
+app.get("/api/indigency/:id/hash", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -447,7 +448,7 @@ app.get('/api/indigency/:id/hash', async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Certificate not found' });
+      return res.status(404).json({ error: "Certificate not found" });
     }
 
     const hash = generateDocumentHash(rows[0]);
@@ -458,12 +459,12 @@ app.get('/api/indigency/:id/hash', async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to generate hash' });
+    res.status(500).json({ error: "Failed to generate hash" });
   }
 });
 
 // API endpoint to verify business clearance certificate (for JSON response)
-app.get('/verify/business-clearance/:id', async (req, res) => {
+app.get("/verify/business-clearance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const { hash } = req.query;
@@ -480,7 +481,7 @@ app.get('/verify/business-clearance/:id', async (req, res) => {
     if (rows.length === 0) {
       return res.status(404).json({
         valid: false,
-        message: 'Certificate not found or has been revoked',
+        message: "Certificate not found or has been revoked",
       });
     }
 
@@ -488,20 +489,20 @@ app.get('/verify/business-clearance/:id', async (req, res) => {
     const serverHash = generateDocumentHash({
       ...certificate,
       indigency_id: certificate.business_clearance_id,
-      type: 'business_clearance',
+      type: "business_clearance",
     });
 
     if (hash && hash !== serverHash) {
       return res.status(400).json({
         valid: false,
         message:
-          'Certificate hash mismatch - document may have been tampered with',
+          "Certificate hash mismatch - document may have been tampered with",
       });
     }
 
     res.json({
       valid: true,
-      message: 'Certificate is authentic',
+      message: "Certificate is authentic",
       certificate: {
         id: certificate.business_clearance_id,
         transaction_number: certificate.transaction_number,
@@ -517,13 +518,13 @@ app.get('/verify/business-clearance/:id', async (req, res) => {
     console.error(err);
     res.status(500).json({
       valid: false,
-      message: 'Verification failed due to server error',
+      message: "Verification failed due to server error",
     });
   }
 });
 
 // Get verification hash for business clearance certificate
-app.get('/api/business-clearance/:id/hash', async (req, res) => {
+app.get("/api/business-clearance/:id/hash", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -534,13 +535,13 @@ app.get('/api/business-clearance/:id/hash', async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: 'Certificate not found' });
+      return res.status(404).json({ error: "Certificate not found" });
     }
 
     const hash = generateDocumentHash({
       ...rows[0],
       indigency_id: rows[0].business_clearance_id,
-      type: 'business_clearance',
+      type: "business_clearance",
     });
     res.json({
       hash,
@@ -549,7 +550,7 @@ app.get('/api/business-clearance/:id/hash', async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to generate hash' });
+    res.status(500).json({ error: "Failed to generate hash" });
   }
 });
 
@@ -558,7 +559,7 @@ app.get('/api/business-clearance/:id/hash', async (req, res) => {
  */
 
 // GET all active indigency records
-app.get('/indigency', async (req, res) => {
+app.get("/indigency", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT
@@ -572,12 +573,12 @@ app.get('/indigency', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch indigency records' });
+    res.status(500).json({ error: "Failed to fetch indigency records" });
   }
 });
 
 // GET single record by ID
-app.get('/indigency/:id', async (req, res) => {
+app.get("/indigency/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -591,16 +592,16 @@ app.get('/indigency/:id', async (req, res) => {
     );
 
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // GET record by transaction number
-app.get('/indigency/transaction/:transactionNumber', async (req, res) => {
+app.get("/indigency/transaction/:transactionNumber", async (req, res) => {
   try {
     const { transactionNumber } = req.params;
     const [rows] = await pool.query(
@@ -616,18 +617,18 @@ app.get('/indigency/transaction/:transactionNumber', async (req, res) => {
     if (rows.length === 0) {
       return res
         .status(404)
-        .json({ error: 'Certificate not found with this transaction number' });
+        .json({ error: "Certificate not found with this transaction number" });
     }
 
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // CREATE new record
-app.post('/indigency', async (req, res) => {
+app.post("/indigency", async (req, res) => {
   try {
     const {
       resident_id,
@@ -654,7 +655,7 @@ app.post('/indigency', async (req, res) => {
       !request_reason ||
       !date_issued
     ) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     // Generate transaction number if not provided
@@ -663,14 +664,14 @@ app.post('/indigency', async (req, res) => {
 
     // Check if transaction number already exists
     const [existing] = await pool.query(
-      'SELECT indigency_id FROM indigency WHERE transaction_number = ?',
+      "SELECT indigency_id FROM indigency WHERE transaction_number = ?",
       [finalTransactionNumber]
     );
 
     if (existing.length > 0) {
       // If collision, generate a new one
       const newTransactionNumber = generateTransactionNumber();
-      const [result] = await pool.query(
+      const [] = await pool.query(
         `INSERT INTO indigency
           (resident_id, full_name, address, provincial_address, dob, age,
            civil_status, contact_no, request_reason, remarks, date_issued, transaction_number)
@@ -728,12 +729,12 @@ app.post('/indigency', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
 // UPDATE existing record
-app.put('/indigency/:id', async (req, res) => {
+app.put("/indigency/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -760,20 +761,20 @@ app.put('/indigency/:id', async (req, res) => {
       !request_reason ||
       !date_issued
     ) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     // If transaction number is being updated, check if it already exists
     if (transaction_number) {
       const [existing] = await pool.query(
-        'SELECT indigency_id FROM indigency WHERE transaction_number = ? AND indigency_id != ?',
+        "SELECT indigency_id FROM indigency WHERE transaction_number = ? AND indigency_id != ?",
         [transaction_number, id]
       );
 
       if (existing.length > 0) {
         return res
           .status(400)
-          .json({ error: 'Transaction number already exists' });
+          .json({ error: "Transaction number already exists" });
       }
     }
 
@@ -803,7 +804,7 @@ app.put('/indigency/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     }
 
     const [updatedRows] = await pool.query(
@@ -814,12 +815,12 @@ app.put('/indigency/:id', async (req, res) => {
     res.json(updatedRows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
 // DELETE indigency record (soft delete)
-app.delete('/indigency/:id', async (req, res) => {
+app.delete("/indigency/:id", async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -831,20 +832,20 @@ app.delete('/indigency/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     }
 
-    res.json({ message: 'Record deleted successfully' });
+    res.json({ message: "Record deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
 
 /**
  * REQUEST RECORDS
  */
-app.get('/request-records', async (req, res) => {
+app.get("/request-records", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT id, name, address, birthday, age, provincial_address, contact_no, civil_status, request_reason, date_issued, date_created, date_updated, is_active
@@ -855,11 +856,11 @@ app.get('/request-records', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch records' });
+    res.status(500).json({ error: "Failed to fetch records" });
   }
 });
 
-app.get('/request-records/:id', async (req, res) => {
+app.get("/request-records/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -868,15 +869,15 @@ app.get('/request-records/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
-app.post('/request-records', async (req, res) => {
+app.post("/request-records", async (req, res) => {
   try {
     const {
       name,
@@ -899,7 +900,7 @@ app.post('/request-records', async (req, res) => {
       !request_reason ||
       !date_issued
     ) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const [result] = await pool.query(
@@ -925,11 +926,11 @@ app.post('/request-records', async (req, res) => {
     res.status(201).json({ id: result.insertId, ...rows[0] });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
-app.put('/request-records/:id', async (req, res) => {
+app.put("/request-records/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -965,15 +966,15 @@ app.put('/request-records/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record updated' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record updated" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
-app.delete('/request-records/:id', async (req, res) => {
+app.delete("/request-records/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [result] = await pool.query(
@@ -981,30 +982,30 @@ app.delete('/request-records/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record deleted" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
 
 /**
  * RESIDENTS
  */
-app.get('/residents', async (req, res) => {
+app.get("/residents", async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT * FROM residents ORDER BY resident_id DESC'
+      "SELECT * FROM residents ORDER BY resident_id DESC"
     );
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch residents' });
+    res.status(500).json({ error: "Failed to fetch residents" });
   }
 });
 
-app.post('/residents', async (req, res) => {
+app.post("/residents", async (req, res) => {
   const {
     full_name,
     address,
@@ -1016,13 +1017,13 @@ app.post('/residents', async (req, res) => {
   } = req.body;
   try {
     const [existing] = await pool.query(
-      'SELECT * FROM residents WHERE LOWER(full_name) = LOWER(?) AND dob = ?',
+      "SELECT * FROM residents WHERE LOWER(full_name) = LOWER(?) AND dob = ?",
       [full_name, dob]
     );
 
     if (existing.length > 0) {
       return res.status(400).json({
-        error: 'Resident already exists (same name and date of birth)',
+        error: "Resident already exists (same name and date of birth)",
       });
     }
 
@@ -1042,16 +1043,16 @@ app.post('/residents', async (req, res) => {
     );
 
     res.json({
-      message: 'Resident added successfully',
+      message: "Resident added successfully",
       resident_id: result.insertId,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to add resident' });
+    res.status(500).json({ error: "Failed to add resident" });
   }
 });
 
-app.put('/residents/:id', async (req, res) => {
+app.put("/residents/:id", async (req, res) => {
   const { id } = req.params;
   const {
     full_name,
@@ -1065,14 +1066,14 @@ app.put('/residents/:id', async (req, res) => {
 
   try {
     const [existing] = await pool.query(
-      'SELECT * FROM residents WHERE LOWER(full_name) = LOWER(?) AND dob = ? AND resident_id != ?',
+      "SELECT * FROM residents WHERE LOWER(full_name) = LOWER(?) AND dob = ? AND resident_id != ?",
       [full_name, dob, id]
     );
 
     if (existing.length > 0) {
       return res.status(400).json({
         error:
-          'Another resident with same name and date of birth already exists',
+          "Another resident with same name and date of birth already exists",
       });
     }
 
@@ -1093,40 +1094,40 @@ app.put('/residents/:id', async (req, res) => {
       ]
     );
 
-    res.json({ message: 'Resident updated successfully' });
+    res.json({ message: "Resident updated successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update resident' });
+    res.status(500).json({ error: "Failed to update resident" });
   }
 });
 
-app.delete('/residents/:id', async (req, res) => {
+app.delete("/residents/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
     const [result] = await pool.query(
-      'DELETE FROM residents WHERE resident_id = ?',
+      "DELETE FROM residents WHERE resident_id = ?",
       [id]
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'Resident not found' });
+      return res.status(404).json({ error: "Resident not found" });
     }
 
-    res.json({ message: 'Resident deleted successfully' });
+    res.json({ message: "Resident deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete resident' });
+    res.status(500).json({ error: "Failed to delete resident" });
   }
 });
 
 /**
  * CERTIFICATES
  */
-app.get('/certificates', async (req, res) => {
+app.get("/certificates", async (req, res) => {
   try {
     const { type } = req.query;
-    const whereClause = type ? 'WHERE c.type = ?' : '';
+    const whereClause = type ? "WHERE c.type = ?" : "";
     const params = type ? [type] : [];
     const [rows] = await pool.query(
       `SELECT c.certificate_id, c.type, r.full_name,
@@ -1141,11 +1142,11 @@ app.get('/certificates', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch certificates' });
+    res.status(500).json({ error: "Failed to fetch certificates" });
   }
 });
 
-app.get('/certificates/:id', async (req, res) => {
+app.get("/certificates/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -1154,21 +1155,21 @@ app.get('/certificates/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Certificate not found' });
+      return res.status(404).json({ error: "Certificate not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch certificate' });
+    res.status(500).json({ error: "Failed to fetch certificate" });
   }
 });
 
-app.post('/certificates', async (req, res) => {
+app.post("/certificates", async (req, res) => {
   const { resident_id, type, purpose, validity_months, issued_by } = req.body;
   try {
     if (!resident_id || !type) {
       return res
         .status(400)
-        .json({ error: 'resident_id and type are required' });
+        .json({ error: "resident_id and type are required" });
     }
     const [result] = await pool.query(
       `INSERT INTO certificates
@@ -1179,20 +1180,20 @@ app.post('/certificates', async (req, res) => {
         type,
         purpose || null,
         validity_months || 6,
-        issued_by || 'Barangay Chairman',
+        issued_by || "Barangay Chairman",
       ]
     );
     res.json({
-      message: 'Certificate created',
+      message: "Certificate created",
       certificate_id: result.insertId,
     });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create certificate' });
+    res.status(500).json({ error: "Failed to create certificate" });
   }
 });
 
-app.put('/certificates/:id', async (req, res) => {
+app.put("/certificates/:id", async (req, res) => {
   const { id } = req.params;
   const { resident_id, type, purpose, validity_months, issued_by } = req.body;
   try {
@@ -1202,15 +1203,15 @@ app.put('/certificates/:id', async (req, res) => {
       [resident_id, type, purpose, validity_months, issued_by, id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Certificate not found' });
-    res.json({ message: 'Certificate updated' });
+      return res.status(404).json({ error: "Certificate not found" });
+    res.json({ message: "Certificate updated" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update certificate' });
+    res.status(500).json({ error: "Failed to update certificate" });
   }
 });
 
-app.delete('/certificates/:id', async (req, res) => {
+app.delete("/certificates/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const [result] = await pool.query(
@@ -1218,20 +1219,20 @@ app.delete('/certificates/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Certificate not found' });
-    res.json({ message: 'Certificate deleted' });
+      return res.status(404).json({ error: "Certificate not found" });
+    res.json({ message: "Certificate deleted" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete certificate' });
+    res.status(500).json({ error: "Failed to delete certificate" });
   }
 });
 
 /**
  * AUTHENTICATION
  */
-app.post('/auth/login', authenticateUser, (req, res) => {
+app.post("/auth/login", authenticateUser, (req, res) => {
   res.json({
-    message: 'Login successful',
+    message: "Login successful",
     user: req.user,
   });
 });
@@ -1239,104 +1240,104 @@ app.post('/auth/login', authenticateUser, (req, res) => {
 /**
  * USERS
  */
-app.get('/users', async (req, res) => {
+app.get("/users", async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT user_id, username, name, role, created_at FROM users ORDER BY created_at DESC'
+      "SELECT user_id, username, name, role, created_at FROM users ORDER BY created_at DESC"
     );
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch users' });
+    res.status(500).json({ error: "Failed to fetch users" });
   }
 });
 
-app.post('/users', async (req, res) => {
+app.post("/users", async (req, res) => {
   const { username, name, password, role } = req.body;
 
   if (!username || !name || !password) {
     return res
       .status(400)
-      .json({ error: 'Username, name, and password are required' });
+      .json({ error: "Username, name, and password are required" });
   }
 
   try {
     const [existingUsers] = await pool.query(
-      'SELECT user_id FROM users WHERE username = ?',
+      "SELECT user_id FROM users WHERE username = ?",
       [username]
     );
 
     if (existingUsers.length > 0) {
-      return res.status(400).json({ error: 'Username already exists' });
+      return res.status(400).json({ error: "Username already exists" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const [result] = await pool.query(
       `INSERT INTO users (username, name, password, role) VALUES (?,?,?,?)`,
-      [username, name, hashedPassword, role || 'staff']
+      [username, name, hashedPassword, role || "staff"]
     );
-    res.json({ message: 'User created', user_id: result.insertId });
+    res.json({ message: "User created", user_id: result.insertId });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create user' });
+    res.status(500).json({ error: "Failed to create user" });
   }
 });
 
-app.put('/users/:id', async (req, res) => {
+app.put("/users/:id", async (req, res) => {
   const { id } = req.params;
   const { username, name, password, role } = req.body;
 
   if (!username || !name) {
-    return res.status(400).json({ error: 'Username and name are required' });
+    return res.status(400).json({ error: "Username and name are required" });
   }
 
   try {
     const [existingUsers] = await pool.query(
-      'SELECT user_id FROM users WHERE username = ? AND user_id != ?',
+      "SELECT user_id FROM users WHERE username = ? AND user_id != ?",
       [username, id]
     );
 
     if (existingUsers.length > 0) {
-      return res.status(400).json({ error: 'Username already exists' });
+      return res.status(400).json({ error: "Username already exists" });
     }
 
-    let updateQuery = 'UPDATE users SET username = ?, name = ?, role = ?';
+    let updateQuery = "UPDATE users SET username = ?, name = ?, role = ?";
     let queryParams = [username, name, role];
 
-    if (password && password.trim() !== '') {
+    if (password && password.trim() !== "") {
       const hashedPassword = await bcrypt.hash(password, 10);
-      updateQuery += ', password = ?';
+      updateQuery += ", password = ?";
       queryParams.push(hashedPassword);
     }
 
-    updateQuery += ' WHERE user_id = ?';
+    updateQuery += " WHERE user_id = ?";
     queryParams.push(id);
 
     await pool.query(updateQuery, queryParams);
-    res.json({ message: 'User updated successfully' });
+    res.json({ message: "User updated successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update user' });
+    res.status(500).json({ error: "Failed to update user" });
   }
 });
 
-app.delete('/users/:id', async (req, res) => {
+app.delete("/users/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const [result] = await pool.query('DELETE FROM users WHERE user_id = ?', [
+    const [result] = await pool.query("DELETE FROM users WHERE user_id = ?", [
       id,
     ]);
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'User not found' });
+      return res.status(404).json({ error: "User not found" });
     }
 
-    res.json({ message: 'User deleted successfully' });
+    res.json({ message: "User deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete user' });
+    res.status(500).json({ error: "Failed to delete user" });
   }
 });
 
@@ -1346,7 +1347,7 @@ app.delete('/users/:id', async (req, res) => {
  */
 
 // GET all active clearance records
-app.get('/barangay-clearance', async (req, res) => {
+app.get("/barangay-clearance", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM barangay_clearance WHERE is_active = TRUE ORDER BY barangay_clearance_id DESC`
@@ -1356,12 +1357,12 @@ app.get('/barangay-clearance', async (req, res) => {
     console.error(err);
     res
       .status(500)
-      .json({ error: 'Failed to fetch barangay clearance records' });
+      .json({ error: "Failed to fetch barangay clearance records" });
   }
 });
 
 // GET single clearance by ID
-app.get('/barangay-clearance/:id', async (req, res) => {
+app.get("/barangay-clearance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -1369,16 +1370,16 @@ app.get('/barangay-clearance/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // CREATE new barangay clearance
-app.post('/barangay-clearance', async (req, res) => {
+app.post("/barangay-clearance", async (req, res) => {
   try {
     const {
       resident_id,
@@ -1396,7 +1397,7 @@ app.post('/barangay-clearance', async (req, res) => {
     } = req.body;
 
     if (!full_name || !address || !request_reason || !date_issued) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const finalTransactionNumber =
@@ -1430,12 +1431,12 @@ app.post('/barangay-clearance', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
 // UPDATE existing record
-app.put('/barangay-clearance/:id', async (req, res) => {
+app.put("/barangay-clearance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -1475,7 +1476,7 @@ app.put('/barangay-clearance/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
 
     const [updated] = await pool.query(
       `SELECT * FROM barangay_clearance WHERE barangay_clearance_id = ?`,
@@ -1485,12 +1486,12 @@ app.put('/barangay-clearance/:id', async (req, res) => {
     res.json(updated[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
 // DELETE (soft delete)
-app.delete('/barangay-clearance/:id', async (req, res) => {
+app.delete("/barangay-clearance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [result] = await pool.query(
@@ -1498,11 +1499,11 @@ app.delete('/barangay-clearance/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted successfully' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
 
@@ -1513,7 +1514,7 @@ app.delete('/barangay-clearance/:id', async (req, res) => {
  */
 
 // GET all active business clearance records
-app.get('/business-clearance', async (req, res) => {
+app.get("/business-clearance", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM business_clearance WHERE is_active = TRUE ORDER BY business_clearance_id DESC`
@@ -1523,12 +1524,12 @@ app.get('/business-clearance', async (req, res) => {
     console.error(err);
     res
       .status(500)
-      .json({ error: 'Failed to fetch business clearance records' });
+      .json({ error: "Failed to fetch business clearance records" });
   }
 });
 
 // GET single business clearance by ID
-app.get('/business-clearance/:id', async (req, res) => {
+app.get("/business-clearance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -1536,16 +1537,16 @@ app.get('/business-clearance/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // CREATE new business clearance
-app.post('/business-clearance', async (req, res) => {
+app.post("/business-clearance", async (req, res) => {
   try {
     const {
       resident_id,
@@ -1563,21 +1564,21 @@ app.post('/business-clearance', async (req, res) => {
     } = req.body;
 
     if (!full_name || !address || !request_reason || !date_issued) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const finalTransactionNumber =
-      transaction_number || generateTransactionNumberForType('BUS');
+      transaction_number || generateTransactionNumberForType("BUS");
 
     // Check if transaction number already exists
     const [existing] = await pool.query(
-      'SELECT business_clearance_id FROM business_clearance WHERE transaction_number = ?',
+      "SELECT business_clearance_id FROM business_clearance WHERE transaction_number = ?",
       [finalTransactionNumber]
     );
 
     if (existing.length > 0) {
       // If collision, generate a new one
-      const newTransactionNumber = generateTransactionNumberForType('BUS');
+      const newTransactionNumber = generateTransactionNumberForType("BUS");
       const [result] = await pool.query(
         `INSERT INTO business_clearance 
           (resident_id, transactionNum, full_name, address, provincial_address, dob, age,
@@ -1637,12 +1638,12 @@ app.post('/business-clearance', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
 // UPDATE existing business clearance
-app.put('/business-clearance/:id', async (req, res) => {
+app.put("/business-clearance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -1663,14 +1664,14 @@ app.put('/business-clearance/:id', async (req, res) => {
     // If transaction number is being updated, check if it already exists
     if (transaction_number) {
       const [existing] = await pool.query(
-        'SELECT business_clearance_id FROM business_clearance WHERE transaction_number = ? AND business_clearance_id != ?',
+        "SELECT business_clearance_id FROM business_clearance WHERE transaction_number = ? AND business_clearance_id != ?",
         [transaction_number, id]
       );
 
       if (existing.length > 0) {
         return res
           .status(400)
-          .json({ error: 'Transaction number already exists' });
+          .json({ error: "Transaction number already exists" });
       }
     }
 
@@ -1697,7 +1698,7 @@ app.put('/business-clearance/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
 
     const [updated] = await pool.query(
       `SELECT * FROM business_clearance WHERE business_clearance_id = ?`,
@@ -1707,12 +1708,12 @@ app.put('/business-clearance/:id', async (req, res) => {
     res.json(updated[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
 // DELETE business clearance (soft delete)
-app.delete('/business-clearance/:id', async (req, res) => {
+app.delete("/business-clearance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [result] = await pool.query(
@@ -1720,11 +1721,11 @@ app.delete('/business-clearance/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted successfully' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
 
@@ -1733,7 +1734,7 @@ app.delete('/business-clearance/:id', async (req, res) => {
  */
 
 // GET all active certificate of residency records
-app.get('/certificate-of-residency', async (req, res) => {
+app.get("/certificate-of-residency", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM certificate_of_residency WHERE is_active = TRUE ORDER BY certificate_of_residency_id DESC`
@@ -1743,12 +1744,12 @@ app.get('/certificate-of-residency', async (req, res) => {
     console.error(err);
     res
       .status(500)
-      .json({ error: 'Failed to fetch certificate of residency records' });
+      .json({ error: "Failed to fetch certificate of residency records" });
   }
 });
 
 // GET single certificate of residency by ID
-app.get('/certificate-of-residency/:id', async (req, res) => {
+app.get("/certificate-of-residency/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -1756,16 +1757,16 @@ app.get('/certificate-of-residency/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // CREATE new certificate of residency
-app.post('/certificate-of-residency', async (req, res) => {
+app.post("/certificate-of-residency", async (req, res) => {
   try {
     const {
       resident_id,
@@ -1783,7 +1784,7 @@ app.post('/certificate-of-residency', async (req, res) => {
     } = req.body;
 
     if (!full_name || !address || !request_reason || !date_issued) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const finalTransactionNumber =
@@ -1817,12 +1818,12 @@ app.post('/certificate-of-residency', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
 // UPDATE existing certificate of residency
-app.put('/certificate-of-residency/:id', async (req, res) => {
+app.put("/certificate-of-residency/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -1862,7 +1863,7 @@ app.put('/certificate-of-residency/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
 
     const [updated] = await pool.query(
       `SELECT * FROM certificate_of_residency WHERE certificate_of_residency_id = ?`,
@@ -1872,12 +1873,12 @@ app.put('/certificate-of-residency/:id', async (req, res) => {
     res.json(updated[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
 // DELETE certificate of residency (soft delete)
-app.delete('/certificate-of-residency/:id', async (req, res) => {
+app.delete("/certificate-of-residency/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [result] = await pool.query(
@@ -1885,11 +1886,11 @@ app.delete('/certificate-of-residency/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted successfully' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
 
@@ -1898,7 +1899,7 @@ app.delete('/certificate-of-residency/:id', async (req, res) => {
  */
 
 // GET all active permit to travel records
-app.get('/permit-to-travel', async (req, res) => {
+app.get("/permit-to-travel", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM permit_to_travel WHERE is_active = TRUE ORDER BY permit_to_travel_id DESC`
@@ -1906,12 +1907,12 @@ app.get('/permit-to-travel', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch permit to travel records' });
+    res.status(500).json({ error: "Failed to fetch permit to travel records" });
   }
 });
 
 // GET single permit to travel by ID
-app.get('/permit-to-travel/:id', async (req, res) => {
+app.get("/permit-to-travel/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -1919,16 +1920,16 @@ app.get('/permit-to-travel/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // CREATE new permit to travel
-app.post('/permit-to-travel', async (req, res) => {
+app.post("/permit-to-travel", async (req, res) => {
   try {
     const {
       resident_id,
@@ -1946,7 +1947,7 @@ app.post('/permit-to-travel', async (req, res) => {
     } = req.body;
 
     if (!full_name || !address || !request_reason || !date_issued) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const finalTransactionNumber =
@@ -1980,12 +1981,12 @@ app.post('/permit-to-travel', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
 // UPDATE existing permit to travel
-app.put('/permit-to-travel/:id', async (req, res) => {
+app.put("/permit-to-travel/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -2025,7 +2026,7 @@ app.put('/permit-to-travel/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
 
     const [updated] = await pool.query(
       `SELECT * FROM permit_to_travel WHERE permit_to_travel_id = ?`,
@@ -2035,12 +2036,12 @@ app.put('/permit-to-travel/:id', async (req, res) => {
     res.json(updated[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
 // DELETE permit to travel (soft delete)
-app.delete('/permit-to-travel/:id', async (req, res) => {
+app.delete("/permit-to-travel/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [result] = await pool.query(
@@ -2048,11 +2049,11 @@ app.delete('/permit-to-travel/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted successfully' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
 
@@ -2061,126 +2062,124 @@ app.delete('/permit-to-travel/:id', async (req, res) => {
  */
 
 // GET /oath-job - Get all oath_job records
-app.get('/oath-job', async (req, res) => {
+app.get("/oath-job", async (req, res) => {
   try {
     const [rows] = await pool.query(
-      'SELECT * FROM oath_job ORDER BY date_created DESC'
+      "SELECT * FROM oath_job ORDER BY date_created DESC"
     );
     res.json(rows);
   } catch (err) {
-    console.error('Error fetching oath_job records:', err);
+    console.error("Error fetching oath_job records:", err);
     res
       .status(500)
-      .json({ message: 'Error fetching records', error: err.message });
+      .json({ message: "Error fetching records", error: err.message });
   }
 });
 
 // GET /oath-job/:id - Get a single oath_job record by ID
-app.get('/oath-job/:id', async (req, res) => {
+app.get("/oath-job/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const [rows] = await pool.query('SELECT * FROM oath_job WHERE id = ?', [
+    const [rows] = await pool.query("SELECT * FROM oath_job WHERE id = ?", [
       id,
     ]);
     if (rows.length === 0) {
-      return res.status(404).json({ message: 'Record not found' });
+      return res.status(404).json({ message: "Record not found" });
     }
     res.json(rows[0]);
   } catch (err) {
-    console.error('Error fetching oath_job record:', err);
+    console.error("Error fetching oath_job record:", err);
     res
       .status(500)
-      .json({ message: 'Error fetching record', error: err.message });
+      .json({ message: "Error fetching record", error: err.message });
   }
 });
 
 // POST /oath-job - Create a new oath_job record
-app.post('/oath-job', async (req, res) => {
+app.post("/oath-job", async (req, res) => {
   const { resident_id, full_name, age, address, date_issued } = req.body;
 
   // Basic validation
   if (!full_name) {
-    return res.status(400).json({ message: 'Full name is required.' });
+    return res.status(400).json({ message: "Full name is required." });
   }
 
   const transaction_number = generateTransactionNumber();
 
   try {
     const [result] = await pool.query(
-      'INSERT INTO oath_job (resident_id, transaction_number, full_name, age, address, date_issued) VALUES (?, ?, ?, ?, ?, ?)',
+      "INSERT INTO oath_job (resident_id, transaction_number, full_name, age, address, date_issued) VALUES (?, ?, ?, ?, ?, ?)",
       [resident_id, transaction_number, full_name, age, address, date_issued]
     );
     res.status(201).json({
-      message: 'Record created successfully',
+      message: "Record created successfully",
       id: result.insertId,
       transaction_number: transaction_number,
       ...req.body, // Return the submitted data
     });
   } catch (err) {
-    console.error('Error creating oath_job record:', err);
+    console.error("Error creating oath_job record:", err);
     res
       .status(500)
-      .json({ message: 'Error creating record', error: err.message });
+      .json({ message: "Error creating record", error: err.message });
   }
 });
 
 // PUT /oath-job/:id - Update an existing oath_job record
-app.put('/oath-job/:id', async (req, res) => {
+app.put("/oath-job/:id", async (req, res) => {
   const { id } = req.params;
   const { resident_id, full_name, age, address, date_issued } = req.body;
 
   // Basic validation
   if (!full_name) {
-    return res.status(400).json({ message: 'Full name is required.' });
+    return res.status(400).json({ message: "Full name is required." });
   }
 
   try {
     const [result] = await pool.query(
-      'UPDATE oath_job SET resident_id = ?, full_name = ?, age = ?, address = ?, date_issued = ? WHERE id = ?',
+      "UPDATE oath_job SET resident_id = ?, full_name = ?, age = ?, address = ?, date_issued = ? WHERE id = ?",
       [resident_id, full_name, age, address, date_issued, id]
     );
 
     if (result.affectedRows === 0) {
       return res
         .status(404)
-        .json({ message: 'Record not found or no changes made.' });
+        .json({ message: "Record not found or no changes made." });
     }
-    res.json({ message: 'Record updated successfully', id: id, ...req.body });
+    res.json({ message: "Record updated successfully", id: id, ...req.body });
   } catch (err) {
-    console.error('Error updating oath_job record:', err);
+    console.error("Error updating oath_job record:", err);
     res
       .status(500)
-      .json({ message: 'Error updating record', error: err.message });
+      .json({ message: "Error updating record", error: err.message });
   }
 });
 
 // DELETE /oath-job/:id - Delete an oath_job record
-app.delete('/oath-job/:id', async (req, res) => {
+app.delete("/oath-job/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const [result] = await pool.query('DELETE FROM oath_job WHERE id = ?', [
+    const [result] = await pool.query("DELETE FROM oath_job WHERE id = ?", [
       id,
     ]);
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Record not found' });
+      return res.status(404).json({ message: "Record not found" });
     }
-    res.json({ message: 'Record deleted successfully', id: id });
+    res.json({ message: "Record deleted successfully", id: id });
   } catch (err) {
-    console.error('Error deleting oath_job record:', err);
+    console.error("Error deleting oath_job record:", err);
     res
       .status(500)
-      .json({ message: 'Error deleting record', error: err.message });
+      .json({ message: "Error deleting record", error: err.message });
   }
 });
-
-
 
 /**
  * CASH ASSISTANCE CRUD
  */
 
 // GET all active cash assistance records
-app.get('/cash-assistance', async (req, res) => {
+app.get("/cash-assistance", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM cash_assistance WHERE is_active = TRUE ORDER BY cash_assistance_id DESC`
@@ -2188,12 +2187,12 @@ app.get('/cash-assistance', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch cash assistance records' });
+    res.status(500).json({ error: "Failed to fetch cash assistance records" });
   }
 });
 
 // GET single cash assistance record by ID
-app.get('/cash-assistance/:id', async (req, res) => {
+app.get("/cash-assistance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -2201,16 +2200,16 @@ app.get('/cash-assistance/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // CREATE new cash assistance record
-app.post('/cash-assistance', async (req, res) => {
+app.post("/cash-assistance", async (req, res) => {
   try {
     const {
       resident_id,
@@ -2223,7 +2222,7 @@ app.post('/cash-assistance', async (req, res) => {
     } = req.body;
 
     if (!full_name || !address || !request_reason || !date_issued) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const finalTransactionNumber =
@@ -2252,12 +2251,12 @@ app.post('/cash-assistance', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
 // UPDATE existing cash assistance record
-app.put('/cash-assistance/:id', async (req, res) => {
+app.put("/cash-assistance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -2287,7 +2286,7 @@ app.put('/cash-assistance/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
 
     const [updated] = await pool.query(
       `SELECT * FROM cash_assistance WHERE cash_assistance_id = ?`,
@@ -2297,12 +2296,12 @@ app.put('/cash-assistance/:id', async (req, res) => {
     res.json(updated[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
 // DELETE cash assistance (soft delete)
-app.delete('/cash-assistance/:id', async (req, res) => {
+app.delete("/cash-assistance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [result] = await pool.query(
@@ -2310,22 +2309,20 @@ app.delete('/cash-assistance/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted successfully' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
-
-
 
 /**
  * FINANCIAL ASSISTANCE CRUD
  */
 
 // GET all active financial assistance records
-app.get('/financial-assistance', async (req, res) => {
+app.get("/financial-assistance", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM financial_assistance WHERE is_active = TRUE ORDER BY financial_assistance_id DESC`
@@ -2333,12 +2330,14 @@ app.get('/financial-assistance', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch financial assistance records' });
+    res
+      .status(500)
+      .json({ error: "Failed to fetch financial assistance records" });
   }
 });
 
 // GET single financial assistance record by ID
-app.get('/financial-assistance/:id', async (req, res) => {
+app.get("/financial-assistance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -2346,16 +2345,16 @@ app.get('/financial-assistance/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // CREATE new financial assistance record
-app.post('/financial-assistance', async (req, res) => {
+app.post("/financial-assistance", async (req, res) => {
   try {
     const {
       resident_id,
@@ -2371,7 +2370,7 @@ app.post('/financial-assistance', async (req, res) => {
     } = req.body;
 
     if (!full_name || !address || !purpose || !date_issued) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const finalTransactionNumber =
@@ -2403,12 +2402,12 @@ app.post('/financial-assistance', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
 // UPDATE existing financial assistance record
-app.put('/financial-assistance/:id', async (req, res) => {
+app.put("/financial-assistance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -2444,7 +2443,7 @@ app.put('/financial-assistance/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
 
     const [updated] = await pool.query(
       `SELECT * FROM financial_assistance WHERE financial_assistance_id = ?`,
@@ -2454,12 +2453,12 @@ app.put('/financial-assistance/:id', async (req, res) => {
     res.json(updated[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
 // DELETE financial assistance (soft delete)
-app.delete('/financial-assistance/:id', async (req, res) => {
+app.delete("/financial-assistance/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [result] = await pool.query(
@@ -2467,24 +2466,20 @@ app.delete('/financial-assistance/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted successfully' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
-
-
-
-
 
 /**
  * BHERT CERTIFICATE (POSITIVE) CRUD
  */
 
 // GET all active BHERT certificate (positive) records
-app.get('/bhert-certificate-positive', async (req, res) => {
+app.get("/bhert-certificate-positive", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM bhert_certificate_positive WHERE is_active = TRUE ORDER BY bhert_certificate_positive_id DESC`
@@ -2492,12 +2487,14 @@ app.get('/bhert-certificate-positive', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch BHERT certificate records' });
+    res
+      .status(500)
+      .json({ error: "Failed to fetch BHERT certificate records" });
   }
 });
 
 // GET single BHERT certificate (positive) record by ID
-app.get('/bhert-certificate-positive/:id', async (req, res) => {
+app.get("/bhert-certificate-positive/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -2505,16 +2502,16 @@ app.get('/bhert-certificate-positive/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // CREATE new BHERT certificate (positive)
-app.post('/bhert-certificate-positive', async (req, res) => {
+app.post("/bhert-certificate-positive", async (req, res) => {
   try {
     const {
       resident_id,
@@ -2526,7 +2523,7 @@ app.post('/bhert-certificate-positive', async (req, res) => {
     } = req.body;
 
     if (!full_name || !address || !request_reason || !date_issued) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const finalTransactionNumber =
@@ -2554,12 +2551,12 @@ app.post('/bhert-certificate-positive', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
 // UPDATE existing BHERT certificate (positive)
-app.put('/bhert-certificate-positive/:id', async (req, res) => {
+app.put("/bhert-certificate-positive/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -2587,7 +2584,7 @@ app.put('/bhert-certificate-positive/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
 
     const [updated] = await pool.query(
       `SELECT * FROM bhert_certificate_positive WHERE bhert_certificate_positive_id = ?`,
@@ -2597,12 +2594,12 @@ app.put('/bhert-certificate-positive/:id', async (req, res) => {
     res.json(updated[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
 // DELETE BHERT certificate (positive) (soft delete)
-app.delete('/bhert-certificate-positive/:id', async (req, res) => {
+app.delete("/bhert-certificate-positive/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [result] = await pool.query(
@@ -2610,21 +2607,20 @@ app.delete('/bhert-certificate-positive/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted successfully' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
-
 
 /**
  * CERTIFICATE OF ACTION CRUD
  */
 
 // GET all active certificate of action records
-app.get('/certificate-of-action', async (req, res) => {
+app.get("/certificate-of-action", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM certificate_of_action WHERE is_active = TRUE ORDER BY certificate_of_action_id DESC`
@@ -2632,12 +2628,14 @@ app.get('/certificate-of-action', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch certificate of action records' });
+    res
+      .status(500)
+      .json({ error: "Failed to fetch certificate of action records" });
   }
 });
 
 // GET single certificate of action record by ID
-app.get('/certificate-of-action/:id', async (req, res) => {
+app.get("/certificate-of-action/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -2645,16 +2643,16 @@ app.get('/certificate-of-action/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // CREATE new certificate of action
-app.post('/certificate-of-action', async (req, res) => {
+app.post("/certificate-of-action", async (req, res) => {
   try {
     const {
       resident_id,
@@ -2667,8 +2665,13 @@ app.post('/certificate-of-action', async (req, res) => {
       transaction_number,
     } = req.body;
 
-    if (!complainant_name || !respondent_name || !request_reason || !date_issued) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (
+      !complainant_name ||
+      !respondent_name ||
+      !request_reason ||
+      !date_issued
+    ) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const finalTransactionNumber =
@@ -2698,12 +2701,12 @@ app.post('/certificate-of-action', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
 // UPDATE existing certificate of action
-app.put('/certificate-of-action/:id', async (req, res) => {
+app.put("/certificate-of-action/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -2735,7 +2738,7 @@ app.put('/certificate-of-action/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
 
     const [updated] = await pool.query(
       `SELECT * FROM certificate_of_action WHERE certificate_of_action_id = ?`,
@@ -2745,12 +2748,12 @@ app.put('/certificate-of-action/:id', async (req, res) => {
     res.json(updated[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
 // DELETE certificate of action (soft delete)
-app.delete('/certificate-of-action/:id', async (req, res) => {
+app.delete("/certificate-of-action/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [result] = await pool.query(
@@ -2758,21 +2761,20 @@ app.delete('/certificate-of-action/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted successfully' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
-
 
 /**
  * CERTIFICATE OF COHABITATION CRUD
  */
 
 // GET all active cohabitation certificate records
-app.get('/certificate-of-cohabitation', async (req, res) => {
+app.get("/certificate-of-cohabitation", async (req, res) => {
   try {
     const [rows] = await pool.query(
       `SELECT * FROM certificate_of_cohabitation WHERE is_active = TRUE ORDER BY certificate_of_cohabitation_id DESC`
@@ -2780,12 +2782,14 @@ app.get('/certificate-of-cohabitation', async (req, res) => {
     res.json(rows);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch cohabitation certificate records' });
+    res
+      .status(500)
+      .json({ error: "Failed to fetch cohabitation certificate records" });
   }
 });
 
 // GET single cohabitation certificate by ID
-app.get('/certificate-of-cohabitation/:id', async (req, res) => {
+app.get("/certificate-of-cohabitation/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [rows] = await pool.query(
@@ -2793,16 +2797,16 @@ app.get('/certificate-of-cohabitation/:id', async (req, res) => {
       [id]
     );
     if (rows.length === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
     res.json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to fetch record' });
+    res.status(500).json({ error: "Failed to fetch record" });
   }
 });
 
 // CREATE new cohabitation certificate
-app.post('/certificate-of-cohabitation', async (req, res) => {
+app.post("/certificate-of-cohabitation", async (req, res) => {
   try {
     const {
       resident1_id,
@@ -2819,8 +2823,14 @@ app.post('/certificate-of-cohabitation', async (req, res) => {
       transaction_number,
     } = req.body;
 
-    if (!full_name1 || !full_name2 || !address || !date_started || !date_issued) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    if (
+      !full_name1 ||
+      !full_name2 ||
+      !address ||
+      !date_started ||
+      !date_issued
+    ) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     const finalTransactionNumber =
@@ -2854,12 +2864,12 @@ app.post('/certificate-of-cohabitation', async (req, res) => {
     res.status(201).json(rows[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to create record' });
+    res.status(500).json({ error: "Failed to create record" });
   }
 });
 
 // UPDATE existing cohabitation certificate
-app.put('/certificate-of-cohabitation/:id', async (req, res) => {
+app.put("/certificate-of-cohabitation/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -2899,7 +2909,7 @@ app.put('/certificate-of-cohabitation/:id', async (req, res) => {
     );
 
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
+      return res.status(404).json({ error: "Record not found" });
 
     const [updated] = await pool.query(
       `SELECT * FROM certificate_of_cohabitation WHERE certificate_of_cohabitation_id = ?`,
@@ -2909,12 +2919,12 @@ app.put('/certificate-of-cohabitation/:id', async (req, res) => {
     res.json(updated[0]);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to update record' });
+    res.status(500).json({ error: "Failed to update record" });
   }
 });
 
 // DELETE cohabitation certificate (soft delete)
-app.delete('/certificate-of-cohabitation/:id', async (req, res) => {
+app.delete("/certificate-of-cohabitation/:id", async (req, res) => {
   try {
     const { id } = req.params;
     const [result] = await pool.query(
@@ -2922,16 +2932,286 @@ app.delete('/certificate-of-cohabitation/:id', async (req, res) => {
       [id]
     );
     if (result.affectedRows === 0)
-      return res.status(404).json({ error: 'Record not found' });
-    res.json({ message: 'Record deleted successfully' });
+      return res.status(404).json({ error: "Record not found" });
+    res.json({ message: "Record deleted successfully" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to delete record' });
+    res.status(500).json({ error: "Failed to delete record" });
   }
 });
 
+//===============
+// SOLO PARENT
+//===============
+app.get("/solo-parent", async (req, res) => {
+  try {
+    const [rows] = await pool.query(`
+      SELECT id,
+        resident_id,
+        name,
+        age,
+        address,
+        year_of_residency,
+        unwed_year,
+        daughter_name,
+        daughter_age,
+        daughter_birthday,
+        son_name,
+        son_age,
+        son_birthday,
+        date_issued,
+        transaction_number,
+        is_active,
+        date_created,
+        date_updated FROM solo_parent WHERE is_active = TRUE ORDER BY id DESC`);
+    res.json(rows);
+  } catch (err) {
+    console.error("Database Query Error:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
+app.get("/solo-parent/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.query(
+      `  SELECT id,
+        resident_id,
+        name,
+        age,
+        address,
+        year_of_residency,
+        unwed_year,
+        daughter_name,
+        daughter_age,
+        daughter_birthday,
+        son_name,
+        son_age,
+        son_birthday,
+        date_issued,
+        transaction_number,
+        is_active,
+        date_created,
+        date_updated
+        FROM solo_parent
+        WHERE id = ?
+        `,
+      [id]
+    );
 
+    if (rows.length === 0)
+      return res.status(404).json({ error: "Record not found" });
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch record" });
+  }
+});
+
+app.get("/solo-parent/:transactionNumber", async (req, res) => {
+  try {
+    const { transactionNumber } = req.params;
+    const [rows] = await pool.query(
+      `  SELECT id,
+        resident_id,
+        name,
+        age,
+        address,
+        year_of_residency,
+        unwed_year,
+        daughter_name,
+        daughter_age,
+        daughter_birthday,
+        son_name,
+        son_age,
+        son_birthday,
+        date_issued,
+        transaction_number,
+        is_active,
+        date_created,
+        date_updated
+        FROM solo_parent
+        WHERE id = ?
+        `,
+      [transactionNumber]
+    );
+
+    if (rows.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "Certificate not found with this transaction number" });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch record" });
+  }
+});
+
+app.post("/solo-parent", async (req, res) => {
+  try {
+    const {
+      resident_id,
+      name,
+      age,
+      address,
+      year_of_residency,
+      unwed_year,
+      daughter_name,
+      daughter_age,
+      daughter_birthday,
+      son_name,
+      son_age,
+      son_birthday,
+      date_issued,
+      transaction_number,
+      is_active,
+      date_created,
+      date_updated,
+    } = req.body;
+
+    if (!name)
+      return res.status(400).json({ error: "Missing required fields" });
+
+    const sql = `INSERT INTO solo_parent (resident_id,
+      name,
+      age,
+      address,
+      year_of_residency,
+      unwed_year,
+      daughter_name,
+      daughter_age,
+      daughter_birthday,
+      son_name,
+      son_age,
+      son_birthday,
+      date_issued,
+      transaction_number,
+      is_active,
+      date_created,
+      date_updated) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
+
+    const [result] = await pool.query(sql, [
+      resident_id,
+      name,
+      age,
+      address,
+      year_of_residency,
+      unwed_year,
+      daughter_name,
+      daughter_age,
+      daughter_birthday,
+      son_name,
+      son_age,
+      son_birthday,
+      date_issued,
+      transaction_number,
+      is_active,
+      date_created,
+      date_updated,
+    ]);
+
+    res.status(201).json({
+      message: "Solo parent record added successfully",
+      id: result.insertId,
+    });
+  } catch (err) {
+    console.error("Database Insert Error:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.put("/solo-parent/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      resident_id,
+      name,
+      age,
+      address,
+      year_of_residency,
+      unwed_year,
+      daughter_name,
+      daughter_age,
+      daughter_birthday,
+      son_name,
+      son_age,
+      son_birthday,
+      date_issued,
+      transaction_number,
+      is_active,
+      date_created,
+      date_updated,
+    } = req.body;
+    const sql = `UPDATE solo_parent SET  resident_id = ?,
+      name = ?,
+      age = ?,
+      address = ?,
+      year_of_residency = ?,
+      unwed_year = ?,
+      daughter_name = ?,
+      daughter_age = ?,
+      daughter_birthday = ?,
+      son_name = ?,
+      son_age = ?,
+      son_birthday = ?,
+      date_issued = ?,
+      transaction_number = ?,
+      is_active = ?,
+      date_created = ?,
+      date_updated = NOW() WHERE id = ?`;
+
+    const [result] = await pool.query(sql, [
+      resident_id,
+      name,
+      age,
+      address,
+      year_of_residency,
+      unwed_year,
+      daughter_name,
+      daughter_age,
+      daughter_birthday,
+      son_name,
+      son_age,
+      son_birthday,
+      date_issued,
+      transaction_number,
+      is_active,
+      date_created,
+      date_updated,
+      id,
+    ]);
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: "Record not found" });
+  } catch (err) {
+    console.error("Database Update Error:", err.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+app.delete("/solo-parent", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [result] = await pool.query(
+      `UPDATE solo_parent SET is_active = FALSE, date_updated = NOW() WHERE id = ?`,
+      [id]
+    );
+
+    if (result.affectedRows === 0)
+      return res.status(404).json({ error: "Record not found" });
+
+    res.json({ message: "Record deleted successfully" });
+  } catch (err) {
+    console.error("Database Delete Error:", err.message);
+    res.status(500).json({ error: "INternal server error" });
+  }
+});
+
+//===============
+// SOLO PARENT END
+//===============
 
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
