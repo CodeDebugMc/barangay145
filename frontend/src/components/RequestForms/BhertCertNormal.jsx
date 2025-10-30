@@ -1,12 +1,10 @@
-import React from "react";
-
-import CaloocanLogo from '../../assets/CaloocanLogo.png';
-import Logo145 from '../../assets/Logo145.png';
-import BagongPilipinas from '../../assets/BagongPilipinas.png';
-
+import CaloocanLogo from "../../assets/CaloocanLogo.png";
+import Logo145 from "../../assets/Logo145.png";
+import BagongPilipinas from "../../assets/BagongPilipinas.png";
 
 export default function BhertCertJSX() {
   return (
+    // BhertCert Normal layout start here.
     <div
       style={{
         display: "flex",
@@ -34,17 +32,35 @@ export default function BhertCertJSX() {
         <img
           src={CaloocanLogo}
           alt="Logo 1"
-          style={{ position: "absolute", width: "80px", height: "80px", top: "60px", left: "40px" }}
+          style={{
+            position: "absolute",
+            width: "80px",
+            height: "80px",
+            top: "60px",
+            left: "40px",
+          }}
         />
         <img
           src={BagongPilipinas}
           alt="Logo 2"
-          style={{ position: "absolute", width: "80px", height: "80px", top: "60px", left: "130px" }}
+          style={{
+            position: "absolute",
+            width: "80px",
+            height: "80px",
+            top: "60px",
+            left: "130px",
+          }}
         />
         <img
           src={Logo145}
           alt="Logo 3"
-          style={{ position: "absolute", width: "80px", height: "80px", top: "60px", right: "40px" }}
+          style={{
+            position: "absolute",
+            width: "80px",
+            height: "80px",
+            top: "60px",
+            right: "40px",
+          }}
         />
 
         {/* Watermark */}
@@ -64,37 +80,84 @@ export default function BhertCertJSX() {
         {/* Header */}
         <div
           className="header-text"
-          style={{ position: "absolute", top: "60px", width: "100%", textAlign: "center", fontFamily: "'Lucida Calligraphy', cursive", fontSize: "12pt", fontWeight: "bold" }}
+          style={{
+            position: "absolute",
+            top: "60px",
+            width: "100%",
+            textAlign: "center",
+            fontFamily: "'Lucida Calligraphy', cursive",
+            fontSize: "12pt",
+            fontWeight: "bold",
+          }}
         >
           Republic of the Philippines
         </div>
         <div
           className="header-text"
-          style={{ position: "absolute", top: "85px", width: "100%", textAlign: "center", fontFamily: "Arial, sans-serif", fontSize: "12pt", fontWeight: "bold" }}
+          style={{
+            position: "absolute",
+            top: "85px",
+            width: "100%",
+            textAlign: "center",
+            fontFamily: "Arial, sans-serif",
+            fontSize: "12pt",
+            fontWeight: "bold",
+          }}
         >
           CITY OF CALOOCAN
         </div>
         <div
           className="header-text"
-          style={{ position: "absolute", top: "110px", width: "100%", textAlign: "center", fontFamily: "'Arial Black', sans-serif", fontSize: "12pt", fontWeight: "bold" }}
+          style={{
+            position: "absolute",
+            top: "110px",
+            width: "100%",
+            textAlign: "center",
+            fontFamily: "'Arial Black', sans-serif",
+            fontSize: "12pt",
+            fontWeight: "bold",
+          }}
         >
           BARANGAY 145, ZONE 13, DIST. 1
         </div>
         <div
           className="header-text"
-          style={{ position: "absolute", top: "135px", width: "100%", textAlign: "center", fontFamily: "'Arial Black', sans-serif", fontSize: "12pt", fontWeight: "bold" }}
+          style={{
+            position: "absolute",
+            top: "135px",
+            width: "100%",
+            textAlign: "center",
+            fontFamily: "'Arial Black', sans-serif",
+            fontSize: "12pt",
+            fontWeight: "bold",
+          }}
         >
           Tel. No. 8711 - 7134
         </div>
         <div
           className="header-text"
-          style={{ position: "absolute", top: "160px", width: "100%", textAlign: "center", fontFamily: "'Arial Black', sans-serif", fontSize: "12pt", fontWeight: "bold" }}
+          style={{
+            position: "absolute",
+            top: "160px",
+            width: "100%",
+            textAlign: "center",
+            fontFamily: "'Arial Black', sans-serif",
+            fontSize: "12pt",
+            fontWeight: "bold",
+          }}
         >
           OFFICE OF THE BARANGAY CHAIRMAN
         </div>
 
         {/* Title */}
-        <div style={{ position: "absolute", top: "220px", width: "100%", textAlign: "center" }}>
+        <div
+          style={{
+            position: "absolute",
+            top: "220px",
+            width: "100%",
+            textAlign: "center",
+          }}
+        >
           <span
             className="barangay-title"
             style={{
@@ -127,13 +190,96 @@ export default function BhertCertJSX() {
         >
           TO WHOM IT MAY CONCERN:
           <p style={{ textIndent: "50px" }}>
-            This is to certify that <span style={{ color: "red", fontWeight: "bold", textDecoration: "underline" }}>Full Name</span>, is a Filipino citizen and resident of <span style={{ color: "red", fontWeight: "bold", textDecoration: "underline" }}>Address</span> Bagong Barrio Caloocan City.
+            This is to certify that{" "}
+            <span
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                textDecoration: "underline",
+              }}
+            >
+              Full Name
+            </span>
+            , is a Filipino citizen and resident of{" "}
+            <span
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                textDecoration: "underline",
+              }}
+            >
+              Address
+            </span>{" "}
+            Bagong Barrio Caloocan City.
           </p>
           <p style={{ textIndent: "50px" }}>
-            <span style={{ color: "red", fontWeight: "bold", textDecoration: "underline" }}>He/She</span> is NOT INCLUDED in the list of household in this barangay who is being monitored with <span style={{ color: "red", fontWeight: "bold", textDecoration: "underline" }}>COVID-19</span> and <span style={{ color: "red", fontWeight: "bold", textDecoration: "underline" }}>he/she</span> is NOT INCLUDED in the list of persons who is being monitored in this barangay to the PUI or CONFIRMED with COVID-19. No symptoms of Covid-19 virus.
+            <span
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                textDecoration: "underline",
+              }}
+            >
+              He/She
+            </span>{" "}
+            is NOT INCLUDED in the list of household in this barangay who is
+            being monitored with{" "}
+            <span
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                textDecoration: "underline",
+              }}
+            >
+              COVID-19
+            </span>{" "}
+            and{" "}
+            <span
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                textDecoration: "underline",
+              }}
+            >
+              he/she
+            </span>{" "}
+            is NOT INCLUDED in the list of persons who is being monitored in
+            this barangay to the PUI or CONFIRMED with COVID-19. No symptoms of
+            Covid-19 virus.
           </p>
           <p style={{ textIndent: "50px" }}>
-            This certification is issued upon the request of <span style={{ color: "red", fontWeight: "bold", textDecoration: "underline" }}>ST.PETER CHAPEL</span>, and for <span style={{ color: "red", fontWeight: "bold", textDecoration: "underline" }}>HOSPITAL</span>, for whatever legal purposes it may serve. Done in the office of the Punong Barangay 145, Zone 13, District 1, City of Caloocan this <span style={{ color: "red", fontWeight: "bold", textDecoration: "underline" }}>Day/Month/Year</span>.
+            This certification is issued upon the request of{" "}
+            <span
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                textDecoration: "underline",
+              }}
+            >
+              ST.PETER CHAPEL
+            </span>
+            , and for{" "}
+            <span
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                textDecoration: "underline",
+              }}
+            >
+              HOSPITAL
+            </span>
+            , for whatever legal purposes it may serve. Done in the office of
+            the Punong Barangay 145, Zone 13, District 1, City of Caloocan this{" "}
+            <span
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                textDecoration: "underline",
+              }}
+            >
+              Day/Month/Year
+            </span>
+            .
           </p>
         </div>
 
@@ -152,7 +298,9 @@ export default function BhertCertJSX() {
           }}
         >
           <div>Certified Correct:</div>
-          <p style={{ color: "rgb(193,193,193)", textDecoration: "underline" }}>Signature</p>
+          <p style={{ color: "rgb(193,193,193)", textDecoration: "underline" }}>
+            Signature
+          </p>
           <div>Rosalina P. Anore</div>
           <div style={{ marginTop: "5px" }}>Secretary</div>
         </div>
@@ -171,11 +319,14 @@ export default function BhertCertJSX() {
           }}
         >
           <div>Attested By:</div>
-          <p style={{ color: "rgb(193,193,193)", textDecoration: "underline" }}>Signature</p>
+          <p style={{ color: "rgb(193,193,193)", textDecoration: "underline" }}>
+            Signature
+          </p>
           <div>Arnold Dondonayos</div>
           <div style={{ marginLeft: "5px" }}>Punong Barangay</div>
         </div>
       </div>
     </div>
+    // BerthCert Normal end here.
   );
 }
